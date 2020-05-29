@@ -16,8 +16,6 @@ namespace PatientService.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Address>().HasNoKey();
-            modelBuilder.Entity<PatientContact>().OwnsOne(e => e.Address).WithOwner(e => e.PatientContact);
         }
     }
 }

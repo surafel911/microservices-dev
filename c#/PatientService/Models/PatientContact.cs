@@ -14,16 +14,12 @@ namespace PatientService.Models
         public Patient Patient { get; set; }
 
         [Required]
-        [EmailAddress]
-        [DataType(DataType.EmailAddress)]
-        public string Email { get; set; }
-
-        [Required]
         [Phone]
         [DataType(DataType.PhoneNumber)]
         public string PhoneNumber { get; set; }
 
-        [Required]
-        public Address Address { get; set; }
+        [EmailAddress]
+        [DataType(DataType.EmailAddress)]
+        public string EmailAddress { get; set; }
     }
 }
