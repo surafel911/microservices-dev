@@ -21,6 +21,7 @@ namespace PatientService.Models
         public string LastFourOfSSN { get; set; }
 
         [Required]
+		[DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:MM-dd-yyyy}", ApplyFormatInEditMode = true)]
         public DateTime DateOfBirth { get; set; }
     }
