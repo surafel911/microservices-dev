@@ -51,7 +51,7 @@ namespace PatientService
 
 				try {
 					patientServiceDbHandler.CanConnect();
-				} catch (NpgsqlException e) {
+				} catch (DbHandlerException e) {
 					logger.LogError(e, "An error occured when testing database connection.");
 					throw e;
 				}
@@ -64,7 +64,7 @@ namespace PatientService
 					try {
 						patientServiceDbHandler.EnsureDeleted();
 						patientServiceDbHandler.EnsureCreated();
-					} catch (NpgsqlException e) {
+					} catch (DbHandlerException e) {
 						logger.LogError(e, "An error occured when testing database connection.");
 						throw e;
 					}
@@ -76,7 +76,7 @@ namespace PatientService
 
 						try {
 							SeedData.Initialize(serviceProvider);
-						} catch (NpgsqlException e) {
+						} catch (DbHandlerException e) {
 							logger.LogError(e, "An error occured while seeding database.");
 							throw e;
 						} catch (KeyNotFoundException e) {
