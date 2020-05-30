@@ -7,10 +7,6 @@ using Microsoft.Extensions.Logging;
 using PatientService.Data;
 using PatientService.Models;
 
-/*
- * TODO: Use this API to seed users https://randomuser.me/api
- */
-
 namespace PatientService.Controllers
 {
     [ApiController]
@@ -25,12 +21,6 @@ namespace PatientService.Controllers
             _logger = logger;
 			_patientServiceDbContext = patientServiceDbContext;
         }
-
-		[HttpGet]
-		public Guid GetGuid()
-		{
-			return Guid.NewGuid();
-		}
 
         [HttpGet]
 		[ProducesResponseType(StatusCodes.Status200OK)]
