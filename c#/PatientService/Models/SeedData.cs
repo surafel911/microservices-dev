@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 using PatientService.Data;
+using PatientService.Services;
 
 /*
  * TODO: Use this API to seed users https://randomuser.me/api
@@ -29,10 +30,15 @@ namespace PatientService.Models
         {
 			HttpClient httpClient;
 			PatientServiceDbContext patientServiceDbContext;
+			IPatientServiceDbHandler patientServiceDbHandler;
 
 			httpClient = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient();
+
             patientServiceDbContext = new PatientServiceDbContext(
                 serviceProvider.GetRequiredService<DbContextOptions<PatientServiceDbContext>>());
+
+			patientServiceDbHandler = serviceProvider.CreateScope().ServiceProvider
+				.GetRequiredService<IPatientServiceDbHandler>();
             			
             if (patientServiceDbContext.Patients.Any()) {
                 return;
@@ -60,8 +66,6 @@ namespace PatientService.Models
 						DateOfBirth = dateOfBirthElement.GetProperty("date").GetDateTime()
 					};
 	
-				patients.Add(patient);
-	
 				PatientContact patientContact = new PatientContact
 					{
 						PatientId = patient.Id,
@@ -70,6 +74,7 @@ namespace PatientService.Models
 						EmailAddress = emailAddressElement.GetString()
 					};
 			
+				patients.Add(patient);
 				patientContacts.Add(patientContact);
 			}
 

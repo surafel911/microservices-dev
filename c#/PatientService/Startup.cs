@@ -1,11 +1,8 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
@@ -16,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 using PatientService.Data;
 using PatientService.Models;
+using PatientService.Services;
 
 namespace PatientService
 {
@@ -37,22 +35,22 @@ namespace PatientService
 
 			services.AddDbContext<PatientServiceDbContext>(options =>
 				options.UseNpgsql(Configuration.GetConnectionString("PatientServiceDbContext")));
+
+			services.AddScoped<IPatientServiceDbHandler, PatientServiceDbHandler>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IPatientServiceDbHandler patientServiceDbHandler)
 		{
 			using (IServiceScope serviceScope = app.ApplicationServices.CreateScope()) {
 				ILogger<Startup> logger;
 				IServiceProvider serviceProvider;
-				PatientServiceDbContext patientServiceDbContext;
 				
 				serviceProvider = serviceScope.ServiceProvider;
 				logger = serviceProvider.GetRequiredService<ILogger<Startup>>();
-				patientServiceDbContext = serviceProvider.GetRequiredService<PatientServiceDbContext>();
 
 				try {
-					patientServiceDbContext.Database.CanConnect();
+					patientServiceDbHandler.CanConnect();
 				} catch (NpgsqlException e) {
 					logger.LogError(e, "An error occured when testing database connection.");
 					throw e;
@@ -64,8 +62,8 @@ namespace PatientService
 					logger.LogInformation("Recreating database.");
 
 					try {
-						patientServiceDbContext.Database.EnsureDeleted();
-						patientServiceDbContext.Database.EnsureCreated();
+						patientServiceDbHandler.EnsureDeleted();
+						patientServiceDbHandler.EnsureCreated();
 					} catch (NpgsqlException e) {
 						logger.LogError(e, "An error occured when testing database connection.");
 						throw e;
