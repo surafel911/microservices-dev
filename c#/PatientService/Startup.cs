@@ -1,4 +1,5 @@
 using System;
+using System.Configuration;
 using System.Collections.Generic;
 
 using Microsoft.AspNetCore.Builder;
@@ -36,69 +37,28 @@ namespace PatientService
 			services.AddDbContext<PatientServiceDbContext>(options =>
 				options.UseNpgsql(Configuration.GetConnectionString("PatientServiceDbContext")));
 
-			services.AddScoped<IPatientServiceDbHandler, PatientServiceDbHandler>();
+			if (string.IsNullOrEmpty(Configuration["ORM"]) || Configuration["ORM"] == "EfCore") {
+				services.AddScoped<IPatientServiceDbHandler, PatientServiceEfCoreDbHandler>();
+			} else {
+				services.AddScoped<IPatientServiceDbHandler, PatientServiceDapperDbHandler>();
+			}
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IPatientServiceDbHandler patientServiceDbHandler)
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
-			using (IServiceScope serviceScope = app.ApplicationServices.CreateScope()) {
-				ILogger<Startup> logger;
-				IServiceProvider serviceProvider;
-				
-				serviceProvider = serviceScope.ServiceProvider;
-				logger = serviceProvider.GetRequiredService<ILogger<Startup>>();
+			ILogger<Startup> logger;
 
-				try {
-					patientServiceDbHandler.CanConnect();
-				} catch (DbHandlerException e) {
-					logger.LogError(e, "An error occured when testing database connection.");
-					throw e;
-				}
+			logger = app.ApplicationServices.CreateScope().ServiceProvider
+				.GetRequiredService<ILogger<Startup>>();
 
-				if (env.IsDevelopment()) {
-					app.UseDeveloperExceptionPage();
 
-					logger.LogInformation("Recreating database.");
-
-					try {
-						patientServiceDbHandler.EnsureDeleted();
-						patientServiceDbHandler.EnsureCreated();
-					} catch (DbHandlerException e) {
-						logger.LogError(e, "An error occured when testing database connection.");
-						throw e;
-					}
-
-					logger.LogInformation("Database recreated.");
-
-					if (bool.Parse(Configuration["SeedDatabase"])) {
-						logger.LogInformation("Seeding database.");
-
-						try {
-							SeedData.Initialize(serviceProvider);
-						} catch (DbHandlerException e) {
-							logger.LogError(e, "An error occured while seeding database.");
-							throw e;
-						} catch (KeyNotFoundException e) {
-							logger.LogError(e, "An error occured while parsing json: " + e.Message); 
-							throw e;
-						} catch (ArgumentNullException e) {
-							logger.LogError(e, "An error occured while parsing json: " + e.Message); 
-							throw e;
-						} catch (InvalidOperationException e) {
-							logger.LogError(e, "An error occured while parsing json: " + e.Message); 
-							throw e;
-						}
-
-						logger.LogInformation("Database successfully seeded.");
-					}else {
-						logger.LogInformation("Skipping seeding database.");
-					}
-				} else {
-					app.UseExceptionHandler("/Error");
-				}
+			if (env.IsDevelopment()) {
+				app.UseDeveloperExceptionPage();
+			} else {
+				app.UseExceptionHandler("/Error");
 			}
-
+			
 			app.UseRouting();
 
 			app.UseAuthorization();
