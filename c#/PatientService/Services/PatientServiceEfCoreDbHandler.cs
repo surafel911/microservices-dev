@@ -8,11 +8,11 @@ using Npgsql;
 
 namespace PatientService.Services
 {
-    public class PatientServiceDbHandler : IPatientServiceDbHandler
+    public class PatientServiceEfCoreDbHandler : IPatientServiceDbHandler
     {
 		private readonly PatientServiceDbContext _patientServiceDbContext;
 
-		public PatientServiceDbHandler(PatientServiceDbContext patientServiceDbContext)
+		public PatientServiceEfCoreDbHandler(PatientServiceDbContext patientServiceDbContext)
 		{
 			_patientServiceDbContext = patientServiceDbContext;
 		}
