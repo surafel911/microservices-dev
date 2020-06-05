@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ID=$(docker ps | grep Patient-service | awk '{printf $1}')
+ID=$(docker ps -a | grep patient-service | awk '{printf $1}')
 
 if [ ! -z "$ID" ]; then
 	docker stop $ID
