@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Text.Json;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
 
-using PatientService.Data;
 using PatientService.Models;
+using PatientService.Services;
 
 namespace PatientService.Controllers
 {
@@ -13,34 +15,82 @@ namespace PatientService.Controllers
     [Route("/api/[controller]")]
     public class PatientController : ControllerBase
     {
-        private readonly ILogger<PatientController> _logger;
-		private readonly PatientServiceDbContext _patientServiceDbContext;
+		private readonly ILogger<PatientController> _logger;
+		private readonly IHostApplicationLifetime _hostApplicationLifetime;
+		private readonly IPatientServiceDbService _patientServiceDbService;
         
-        public PatientController(ILogger<PatientController> logger, PatientServiceDbContext patientServiceDbContext)
+        public PatientController(ILogger<PatientController> logger,
+			IHostApplicationLifetime hostApplicationLifetime,
+			IPatientServiceDbService patientServiceDbService)
         {
             _logger = logger;
-			_patientServiceDbContext = patientServiceDbContext;
-        }
+			_hostApplicationLifetime = hostApplicationLifetime;
+			_patientServiceDbService = patientServiceDbService;
+		}
 
-        [HttpGet]
+		[HttpGet("health")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
-		[ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetPatient(
-			[FromQuery] string FirstName,
-			[FromQuery] string LastName,
-			[FromQuery] DateTime DateOfBirth)
-        {
-			return Ok("Got patient.");
-        }
+		public IActionResult GetHealth()
+		{
+			try {
+				_patientServiceDbService.CanConnect();
+			} catch (DbServiceException e) {
+				_logger.LogCritical(e, "An error occured testing database connection.");
+				_hostApplicationLifetime.StopApplication();
+			}
+
+			return Ok("Service healthy.");
+		}
 
 		[HttpGet("{id}")]
+		[Produces("application/json")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
-		public IActionResult GetPatientId(
-			Guid id)
+		public IActionResult GetPatient(Guid id)
 		{
-			return Ok("Got patient.");
+			Patient patient = null;
+
+			if (id == null || id == Guid.Empty) {
+				return BadRequest("Invalid guid.");
+			}
+
+			patient = _patientServiceDbService.FindPatient(id);
+
+			if (patient == null) {
+				return NotFound("Patient not found.");
+			}
+
+			return Ok(patient);
 		}
+
+		// TODO: Fucking test w/ having dateOfBirth enabled
+
+        [HttpGet]
+		[Produces("application/json")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetPatient(
+			[FromQuery] string firstName,
+			[FromQuery] string lastName,
+			[FromQuery] DateTime dateOfBirth)
+        {
+			Patient patient = null;
+
+			if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) ||
+					dateOfBirth == null) {
+				return BadRequest("Invalid request parameter.");
+			}
+
+			patient = _patientServiceDbService.FindPatient(firstName, lastName, dateOfBirth);
+
+			if (patient == null) {
+				return NotFound("Patient not found.");
+			}
+
+			return Ok(patient);
+        }
 
 		[HttpPost]
 		[Consumes("application/json")]
@@ -49,36 +99,91 @@ namespace PatientService.Controllers
 		public IActionResult CreatePatient(
 			[FromBody] Patient patient)
 		{
-			return Ok("Created patient.");
+			if (_patientServiceDbService.FindPatient(patient.FirstName,
+				patient.LastName, patient.DateOfBirth) != null) {
+				return BadRequest("Patient already exists.");
+			}
+
+			_patientServiceDbService.AddPatient(patient);
+
+			return NoContent();
 		}
 
-		[HttpPatch("{id}")]
+		[HttpPut("{id}")]
 		[Consumes("application/json-patch+json")]
-		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[Produces("application/json")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		[ProducesResponseType(StatusCodes.Status409Conflict)]
 		[ProducesResponseType(StatusCodes.Status415UnsupportedMediaType)]
-		public IActionResult UpdatePatient(
+		public ActionResult<Patient> UpdatePatient(
 			Guid id,
-			[FromBody] Patient patient)
+			[FromBody] Patient patientDTO)
 		{
-			return Ok("Updated patient.");
+			Patient patient = null;
+
+			if (id == null || id == Guid.Empty) {
+				return BadRequest("Invalid guid.");
+			}
+
+			patient = _patientServiceDbService.FindPatient(id);
+			if (patient == null) {
+				return NotFound();
+			}
+
+			// TODO: Do a patch of the patient
+			patient = patientDTO;
+			patient.Id = id;
+
+			_patientServiceDbService.UpdatePatient(patient);
+
+			return Ok(patient);
 		}
 
 		[HttpDelete("{id}")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public IActionResult DeletePatient(Guid id)
 		{
-			return Ok("Deleted patient.");
+			Patient patient = null;
+
+			if (id == null || id == Guid.Empty) {
+				return BadRequest("Invalid guid.");
+			}
+
+			patient = _patientServiceDbService.FindPatient(id);
+			if (patient == null) {
+				return NotFound("Patient not found.");
+			}
+
+			_patientServiceDbService.RemovePatient(patient);
+
+			return NoContent();
 		}
 
 		[HttpGet("{id}/contact")]
+		[Produces("application/json")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetPatientContact(Guid id)
+        public ActionResult<PatientContact> GetPatientContact(Guid id)
         {
-			return Ok("Got patient contact.");
+			// TODO: Check if patient and patient contact are both valid
+
+			PatientContact patientContact = null;
+
+			if (id == Guid.Empty) {
+				return BadRequest("Empty guid.");
+			}
+
+			patientContact = _patientServiceDbService.FindPatientContact(id);
+			if (patientContact == null) {
+				return NotFound("Patient contact info not found.");
+			}
+
+			return Ok(patientContact);
         }
 		
 		[HttpPost("{id}/contact")]
@@ -86,30 +191,69 @@ namespace PatientService.Controllers
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		public IActionResult CreatePatientContact(
-			Guid id)
+			Guid id,
+			[FromBody] PatientContact patientContact)
 		{
-			return Ok("Created patient contact.");
+			// TODO: Finish this implementation
+			// TODO: Check if patient and patient contact are both valid
+
+			if (id == Guid.Empty) {
+				return BadRequest("Empty guid.");
+			}
+
+			if (_patientServiceDbService.FindPatientContact(id) != null) {
+				return BadRequest("Patient already exists.");
+			}
+
+			_patientServiceDbService.AddPatientContact(patientContact);
+
+			return NoContent();
 		}
 
-		[HttpPatch("{id}/contact")]
+		[HttpPut("{id}/contact")]
 		[Consumes("application/json-patch+json")]
-		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		[ProducesResponseType(StatusCodes.Status409Conflict)]
 		[ProducesResponseType(StatusCodes.Status415UnsupportedMediaType)]
 		public IActionResult UpdatePatientContact(
 			Guid id,
 			[FromBody] PatientContact patientContact)
 		{
-			return Ok("Updated patient contact.");
+			// TODO: Finish this implementation
+			// TODO: Check if patient and patient contact are both valid
+
+			if (id == Guid.Empty) {
+				return BadRequest("Empty guid.");
+			}
+
+			return NoContent();
 		}
 
 		[HttpDelete("{id}/contact")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public IActionResult DeletePatientContact(Guid id)
 		{
-			return Ok("Deleted patient contact.");
+			// TODO: Finish this implementation
+			// TODO: Check if patient and patient contact are both valid
+
+			PatientContact patientContact = null;
+
+			if (id == Guid.Empty) {
+				return BadRequest("Empty guid.");
+			}
+
+			patientContact = _patientServiceDbService.FindPatientContact(id);
+			if (patientContact == null) {
+				return NotFound("Patient contact info not found.");
+			}
+
+			_patientServiceDbService.RemovePatientContact(patientContact);
+
+			return NoContent();
 		}
     }
 }
