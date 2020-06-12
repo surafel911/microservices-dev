@@ -6,11 +6,11 @@ using PatientService.Models;
 
 namespace PatientService.Services
 {
-    public class PatientServiceDapperDbHandler : IPatientServiceDbHandler
+    public class PatientServiceDapperDbService : IPatientServiceDbService
     {
 		private readonly PatientServiceDbContext _patientServiceDbContext;
 
-		public PatientServiceDapperDbHandler(PatientServiceDbContext patientServiceDbContext)
+		public PatientServiceDapperDbService(PatientServiceDbContext patientServiceDbContext)
 		{
 			_patientServiceDbContext = patientServiceDbContext;
 		}
@@ -32,14 +32,14 @@ namespace PatientService.Services
 		{
 		}
 
-		public Patient FindPatient(params object[] keyValues)
+		public Patient FindPatient(Guid id)
 		{
-			return new Patient();
+			return null;
 		}
 
 		public Patient FindPatient(string firstName, string lastName, DateTime dateOfBirth)
 		{
-			return new Patient();
+			return null;
 		}
 
 		public void UpdatePatient(Patient patient)
@@ -54,9 +54,9 @@ namespace PatientService.Services
 		{
 		}
 
-		public PatientContact FindPatientContact(params object[] keyValues)
+		public PatientContact FindPatientContact(Guid patientId)
 		{
-			return new PatientContact();
+			return null;
 		}
 
 		public void RemovePatientContact(PatientContact patientContact)

@@ -58,15 +58,15 @@ namespace PatientService.Models
         {
 			HttpClient httpClient;
 			PatientServiceDbContext patientServiceDbContext;
-			IPatientServiceDbHandler patientServiceDbHandler;
+			IPatientServiceDbService patientServiceDbService;
 
 			httpClient = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient();
 
             patientServiceDbContext = new PatientServiceDbContext(
                 serviceProvider.GetRequiredService<DbContextOptions<PatientServiceDbContext>>());
 
-			patientServiceDbHandler = serviceProvider.CreateScope().ServiceProvider
-				.GetRequiredService<IPatientServiceDbHandler>();
+			patientServiceDbService = serviceProvider.CreateScope().ServiceProvider
+				.GetRequiredService<IPatientServiceDbService>();
             			
             if (patientServiceDbContext.Patients.Any()) {
                 return;

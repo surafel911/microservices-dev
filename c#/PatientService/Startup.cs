@@ -38,9 +38,9 @@ namespace PatientService
 				options.UseNpgsql(Configuration.GetConnectionString("PatientServiceDbContext")));
 
 			if (string.IsNullOrEmpty(Configuration["ORM"]) || Configuration["ORM"] == "EfCore") {
-				services.AddScoped<IPatientServiceDbHandler, PatientServiceEfCoreDbHandler>();
+				services.AddScoped<IPatientServiceDbService, PatientServiceEfCoreDbService>();
 			} else {
-				services.AddScoped<IPatientServiceDbHandler, PatientServiceDapperDbHandler>();
+				services.AddScoped<IPatientServiceDbService, PatientServiceDapperDbService>();
 			}
 		}
 
@@ -56,7 +56,7 @@ namespace PatientService
 			if (env.IsDevelopment()) {
 				app.UseDeveloperExceptionPage();
 			} else {
-				app.UseExceptionHandler("/Error");
+				app.UseExceptionHandler("/error");
 			}
 			
 			app.UseRouting();

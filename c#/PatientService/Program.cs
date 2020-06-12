@@ -24,11 +24,11 @@ namespace PatientService
 				ILogger<Program> logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 				IConfiguration configuration = serviceProvider.GetRequiredService<IConfiguration>();
 				IWebHostEnvironment webHostEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
-				IPatientServiceDbHandler patientServiceDbHandler = serviceProvider.GetRequiredService<IPatientServiceDbHandler>();
+				IPatientServiceDbService patientServiceDbService = serviceProvider.GetRequiredService<IPatientServiceDbService>();
 				
 				try {
-					patientServiceDbHandler.CanConnect();
-				} catch (DbHandlerException e) {
+					patientServiceDbService.CanConnect();
+				} catch (DbServiceException e) {
 					logger.LogCritical("An error occured testing the database connection.");
 					throw e;
 				}
@@ -49,9 +49,9 @@ namespace PatientService
 					logger.LogInformation("Creating database.");
 
 					try {
-						patientServiceDbHandler.EnsureDeleted();
-						patientServiceDbHandler.EnsureCreated();
-					} catch (DbHandlerException e) {
+						patientServiceDbService.EnsureDeleted();
+						patientServiceDbService.EnsureCreated();
+					} catch (DbServiceException e) {
 						logger.LogCritical("An error occured recreating the database.");
 						throw e;
 					}
