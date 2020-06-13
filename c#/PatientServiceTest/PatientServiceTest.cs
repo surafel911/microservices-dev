@@ -21,6 +21,7 @@ namespace PatientServiceTest
 		private readonly ILogger<PatientController> _mockLogger;
 		private readonly IHostApplicationLifetime _mockHostApplicationLifetime;
 		private readonly IPatientServiceDbService _mockPatientServiceDbService;
+		private readonly PatientController _patientController;
 
 		public PatientServiceTest()
 		{
@@ -39,6 +40,12 @@ namespace PatientServiceTest
 			_mockPatientServiceDbService = new MockPatientServiceDbService();
 			
 			_mockPatientServiceDbService.AddPatient(_patient);
+			
+			_patientController = new PatientController(
+				_mockLogger,
+				_mockHostApplicationLifetime,
+				_mockPatientServiceDbService
+			);
 		}
 	
 		public void Dispose()
@@ -48,14 +55,8 @@ namespace PatientServiceTest
 		[Fact]
 		public void TestGetHealth()
 		{
-			PatientController patientController = new PatientController(
-				_mockLogger,
-				_mockHostApplicationLifetime,
-				_mockPatientServiceDbService
-			);
-
 			// Act
-			IActionResult result = patientController.GetHealth();
+			IActionResult result = _patientController.GetHealth();
 
 			// Assert
 			Assert.IsType<OkObjectResult>(result);
@@ -65,14 +66,8 @@ namespace PatientServiceTest
 		[Fact]
 		public void TestGetPatientFromIdValidId()
 		{
-			PatientController patientController = new PatientController(
-				_mockLogger,
-				_mockHostApplicationLifetime,
-				_mockPatientServiceDbService
-			);
-
 			// Act
-			IActionResult result = patientController.GetPatient(_patient.Id);
+			IActionResult result = _patientController.GetPatient(_patient.Id);
 
 			// Assert
 			Assert.IsType<OkObjectResult>(result);
@@ -82,14 +77,8 @@ namespace PatientServiceTest
 		[Fact]
 		public void TestGetPatientFromIdEmptyId()
 		{
-			PatientController patientController = new PatientController(
-				_mockLogger,
-				_mockHostApplicationLifetime,
-				_mockPatientServiceDbService
-			);
-
 			// Act
-			IActionResult result = patientController.GetPatient(Guid.Empty);
+			IActionResult result = _patientController.GetPatient(Guid.Empty);
 
 			// Assert
 			Assert.IsType<BadRequestObjectResult>(result);
@@ -100,14 +89,8 @@ namespace PatientServiceTest
 		public void TestGetPatientFromIdPatientNotFound()
 
 		{
-			PatientController patientController = new PatientController(
-				_mockLogger,
-				_mockHostApplicationLifetime,
-				_mockPatientServiceDbService
-			);
-
 			// Act
-			IActionResult result = patientController.GetPatient(Guid.NewGuid());
+			IActionResult result = _patientController.GetPatient(Guid.NewGuid());
 
 			// Assert
 			Assert.IsType<NotFoundObjectResult>(result);
@@ -117,14 +100,8 @@ namespace PatientServiceTest
         [Fact]
         public void TestGetPatientFromQueryValidQuery()
 		{
-			PatientController patientController = new PatientController(
-				_mockLogger,
-				_mockHostApplicationLifetime,
-				_mockPatientServiceDbService
-			);
-
 			// Act
-			IActionResult result = patientController.GetPatient(
+			IActionResult result = _patientController.GetPatient(
 				_patient.FirstName, _patient.LastName, _patient.DateOfBirth);
 
 			// Assert
@@ -137,14 +114,8 @@ namespace PatientServiceTest
 		[InlineData(null)]
 		public void TestGetPatientFromQueryNullQuery(string value)
 		{
-			PatientController patientController = new PatientController(
-				_mockLogger,
-				_mockHostApplicationLifetime,
-				_mockPatientServiceDbService
-			);
-
 			// Act
-			IActionResult result = patientController.GetPatient(
+			IActionResult result = _patientController.GetPatient(
 				value, value, DateTime.Now);
 
 			// Assert
@@ -155,14 +126,8 @@ namespace PatientServiceTest
 		[Fact]
 		public void TestGetPatientFromQueryPatientNotFound()
 		{
-			PatientController patientController = new PatientController(
-				_mockLogger,
-				_mockHostApplicationLifetime,
-				_mockPatientServiceDbService
-			);
-
 			// Act
-			IActionResult result = patientController.GetPatient(
+			IActionResult result = _patientController.GetPatient(
 				_patient.FirstName, _patient.LastName, DateTime.Now);
 
 			// Assert
