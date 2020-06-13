@@ -25,12 +25,23 @@ namespace PatientService
 				IConfiguration configuration = serviceProvider.GetRequiredService<IConfiguration>();
 				IPatientDbService patientDbService = serviceProvider.GetRequiredService<IPatientDbService>();
 				IWebHostEnvironment webHostEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
-				
-				try {
-					patientDbService.CanConnect();
-				} catch (DbServiceException e) {
-					logger.LogCritical("An error occured testing the database connection.");
-					throw e;
+
+				int retires = 0;
+				bool connected = false;
+				while (!connected) {
+					try {
+						connected = patientDbService.CanConnect();
+					} catch (DbServiceException e) {
+						logger.LogError("Cannot connect to database. Retying connection.");
+						//System.Threading.Thread.Sleep(5000);
+						if(retires > 3) {
+							logger.LogCritical("An error occured testing the database connection.");
+							throw e;
+						} else {
+							retires++; 
+							continue;
+						}
+					}
 				}
 
 				switch (configuration["ORM"]) {
