@@ -52,7 +52,6 @@ namespace PatientService
 			logger = app.ApplicationServices.CreateScope().ServiceProvider
 				.GetRequiredService<ILogger<Startup>>();
 
-
 			if (env.IsDevelopment()) {
 				app.UseDeveloperExceptionPage();
 			} else {
