@@ -4,12 +4,12 @@ using PatientService.Models;
 
 namespace PatientService.Data
 {
-    public class PatientServiceDbContext : DbContext
+    public class PatientDbContext : DbContext
     {
         public DbSet<Patient> Patients { get; set; }
         public DbSet<PatientContact> PatientContacts { get; set; }
 
-        public PatientServiceDbContext(DbContextOptions<PatientServiceDbContext> options)
+        public PatientDbContext(DbContextOptions<PatientDbContext> options)
             : base(options)
         {
         }

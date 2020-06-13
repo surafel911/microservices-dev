@@ -1,18 +1,19 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 using PatientService.Data;
 using PatientService.Models;
 
 namespace PatientService.Services
 {
-    public class PatientServiceDapperDbService : IPatientServiceDbService
+    public class PatientDapperDbService : IPatientDbService
     {
-		private readonly PatientServiceDbContext _patientServiceDbContext;
+		private readonly PatientDbContext _patientDbContext;
 
-		public PatientServiceDapperDbService(PatientServiceDbContext patientServiceDbContext)
+		public PatientDapperDbService(PatientDbContext patientDbContext)
 		{
-			_patientServiceDbContext = patientServiceDbContext;
+			_patientDbContext = patientDbContext;
 		}
 
 		public bool CanConnect()
@@ -28,7 +29,16 @@ namespace PatientService.Services
 		{
 		}
 
+		public bool AnyPatients()
+		{
+			return false;
+		}
+
 		public void AddPatient(Patient patient)
+		{
+		}
+
+		public void AddPatientRange(IEnumerable<Patient> patients)
 		{
 		}
 
@@ -52,6 +62,11 @@ namespace PatientService.Services
 
 		public void AddPatientContact(PatientContact patientContact)
 		{
+		}
+
+		public void AddPatientContactRange(IEnumerable<PatientContact> patientContacts)
+		{
+		
 		}
 
 		public PatientContact FindPatientContact(Guid patientId)

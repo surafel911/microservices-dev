@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 using Microsoft.Extensions.Logging;
 
@@ -10,22 +11,22 @@ using Npgsql;
 
 namespace PatientService.Services
 {
-    public class PatientServiceEfCoreDbService : IPatientServiceDbService
+    public class PatientEfCoreDbService : IPatientDbService
     {
-		private readonly ILogger<PatientServiceEfCoreDbService> _logger;
-		private readonly PatientServiceDbContext _patientServiceDbContext;
+		private readonly ILogger<PatientEfCoreDbService> _logger;
+		private readonly PatientDbContext _patientDbContext;
 
-		public PatientServiceEfCoreDbService(ILogger<PatientServiceEfCoreDbService> logger,
-			PatientServiceDbContext patientServiceDbContext)
+		public PatientEfCoreDbService(ILogger<PatientEfCoreDbService> logger,
+			PatientDbContext patientServiceDbContext)
 		{
 			_logger = logger;
-			_patientServiceDbContext = patientServiceDbContext;
+			_patientDbContext = patientServiceDbContext;
 		}
 
 		public bool CanConnect()
 		{
 			try {
-				return _patientServiceDbContext.Database.CanConnect();
+				return _patientDbContext.Database.CanConnect();
 			} catch (PostgresException e) {
 				throw new DbServiceException(e);
 			} catch (NpgsqlException e) {
@@ -38,7 +39,7 @@ namespace PatientService.Services
 		public void EnsureCreated()
 		{
 			try {
-				_patientServiceDbContext.Database.EnsureCreated();
+				_patientDbContext.Database.EnsureCreated();
 			} catch (PostgresException e) {
 				throw new DbServiceException(e);
 			} catch (NpgsqlException e) {
@@ -51,7 +52,20 @@ namespace PatientService.Services
 		public void EnsureDeleted()
 		{
 			try {
-				_patientServiceDbContext.Database.EnsureDeleted();
+				_patientDbContext.Database.EnsureDeleted();
+			} catch (PostgresException e) {
+				throw new DbServiceException(e);
+			} catch (NpgsqlException e) {
+				throw new DbServiceException(e);
+			} catch (InvalidOperationException e) {
+				throw e;
+			}
+		}
+
+		public bool AnyPatients()
+		{
+			try {
+				return _patientDbContext.Patients.Any();
 			} catch (PostgresException e) {
 				throw new DbServiceException(e);
 			} catch (NpgsqlException e) {
@@ -64,8 +78,22 @@ namespace PatientService.Services
 		public void AddPatient(Patient patient)
 		{
 			try {
-				_patientServiceDbContext.Patients.Add(patient);
-				_patientServiceDbContext.SaveChanges();
+				_patientDbContext.Patients.Add(patient);
+				_patientDbContext.SaveChanges();
+			} catch (PostgresException e) {
+				throw new DbServiceException(e);
+			} catch (NpgsqlException e) {
+				throw new DbServiceException(e);
+			} catch (InvalidOperationException e) {
+				throw e;
+			}
+		}
+
+		public void AddPatientRange(IEnumerable<Patient> patients)
+		{
+			try {
+				_patientDbContext.Patients.AddRange(patients);
+				_patientDbContext.SaveChanges();
 			} catch (PostgresException e) {
 				throw new DbServiceException(e);
 			} catch (NpgsqlException e) {
@@ -78,7 +106,7 @@ namespace PatientService.Services
 		public Patient FindPatient(Guid id)
 		{
 			try {
-				return _patientServiceDbContext.Patients.Find(id);
+				return _patientDbContext.Patients.Find(id);
 			} catch (PostgresException e) {
 				throw new DbServiceException(e);
 			} catch (NpgsqlException e) {
@@ -91,7 +119,7 @@ namespace PatientService.Services
 		public Patient FindPatient(string firstName, string lastName, DateTime dateOfBirth)
 		{
 			try {
-				IQueryable<Patient> patientQueryable = _patientServiceDbContext
+				IQueryable<Patient> patientQueryable = _patientDbContext
 					.Patients.AsQueryable().Where(patient =>
 						patient.FirstName == firstName && 
 						patient.LastName == lastName &&
@@ -114,7 +142,7 @@ namespace PatientService.Services
 		public void UpdatePatient(Patient patient)
 		{
 			try {
-				_patientServiceDbContext.Patients.Update(patient);
+				_patientDbContext.Patients.Update(patient);
 			} catch (PostgresException e) {
 				throw new DbServiceException(e);
 			} catch (NpgsqlException e) {
@@ -127,8 +155,8 @@ namespace PatientService.Services
 		public void RemovePatient(Patient patient)
 		{
 			try {
-				_patientServiceDbContext.Patients.Remove(patient);
-				_patientServiceDbContext.SaveChanges();
+				_patientDbContext.Patients.Remove(patient);
+				_patientDbContext.SaveChanges();
 			} catch (PostgresException e) {
 				throw new DbServiceException(e);
 			} catch (NpgsqlException e) {
@@ -141,8 +169,22 @@ namespace PatientService.Services
 		public void AddPatientContact(PatientContact patientContact)
 		{
 			try {
-				_patientServiceDbContext.PatientContacts.Add(patientContact);
-				_patientServiceDbContext.SaveChanges();
+				_patientDbContext.PatientContacts.Add(patientContact);
+				_patientDbContext.SaveChanges();
+			} catch (PostgresException e) {
+				throw new DbServiceException(e);
+			} catch (NpgsqlException e) {
+				throw new DbServiceException(e);
+			} catch (InvalidOperationException e) {
+				throw e;
+			}
+		}
+
+		public void AddPatientContactRange(IEnumerable<PatientContact> patientContacts)
+		{
+			try {
+				_patientDbContext.PatientContacts.AddRange(patientContacts);
+				_patientDbContext.SaveChanges();
 			} catch (PostgresException e) {
 				throw new DbServiceException(e);
 			} catch (NpgsqlException e) {
@@ -155,7 +197,7 @@ namespace PatientService.Services
 		public PatientContact FindPatientContact(Guid patientId)
 		{
 			try {
-				return _patientServiceDbContext.PatientContacts.Find(patientId);
+				return _patientDbContext.PatientContacts.Find(patientId);
 			} catch (PostgresException e) {
 				throw new DbServiceException(e);
 			} catch (NpgsqlException e) {
@@ -168,8 +210,8 @@ namespace PatientService.Services
 		public void RemovePatientContact(PatientContact patientContact)
 		{
 			try {
-				_patientServiceDbContext.PatientContacts.Remove(patientContact);
-				_patientServiceDbContext.SaveChanges();
+				_patientDbContext.PatientContacts.Remove(patientContact);
+				_patientDbContext.SaveChanges();
 			} catch (PostgresException e) {
 				throw new DbServiceException(e);
 			} catch (NpgsqlException e) {
@@ -182,8 +224,8 @@ namespace PatientService.Services
 		public void UpdatePatientContact(PatientContact patientContact)
 		{
 			try {
-				_patientServiceDbContext.PatientContacts.Update(patientContact);
-				_patientServiceDbContext.SaveChanges();
+				_patientDbContext.PatientContacts.Update(patientContact);
+				_patientDbContext.SaveChanges();
 			} catch (PostgresException e) {
 				throw new DbServiceException(e);
 			} catch (NpgsqlException e) {

@@ -17,15 +17,15 @@ namespace PatientService.Controllers
     {
 		private readonly ILogger<PatientController> _logger;
 		private readonly IHostApplicationLifetime _hostApplicationLifetime;
-		private readonly IPatientServiceDbService _patientServiceDbService;
+		private readonly IPatientDbService _patientDbService;
         
         public PatientController(ILogger<PatientController> logger,
 			IHostApplicationLifetime hostApplicationLifetime,
-			IPatientServiceDbService patientServiceDbService)
+			IPatientDbService patientDbService)
         {
             _logger = logger;
 			_hostApplicationLifetime = hostApplicationLifetime;
-			_patientServiceDbService = patientServiceDbService;
+			_patientDbService = patientDbService;
 		}
 
 		[HttpGet("health")]
@@ -33,7 +33,7 @@ namespace PatientService.Controllers
 		public IActionResult GetHealth()
 		{
 			try {
-				_patientServiceDbService.CanConnect();
+				_patientDbService.CanConnect();
 			} catch (DbServiceException e) {
 				_logger.LogCritical(e, "An error occured testing database connection.");
 				_hostApplicationLifetime.StopApplication();
@@ -55,7 +55,7 @@ namespace PatientService.Controllers
 				return BadRequest("Invalid guid.");
 			}
 
-			patient = _patientServiceDbService.FindPatient(id);
+			patient = _patientDbService.FindPatient(id);
 
 			if (patient == null) {
 				return NotFound("Patient not found.");
@@ -83,7 +83,7 @@ namespace PatientService.Controllers
 				return BadRequest("Invalid request parameter.");
 			}
 
-			patient = _patientServiceDbService.FindPatient(firstName, lastName, dateOfBirth);
+			patient = _patientDbService.FindPatient(firstName, lastName, dateOfBirth);
 
 			if (patient == null) {
 				return NotFound("Patient not found.");
@@ -99,12 +99,12 @@ namespace PatientService.Controllers
 		public IActionResult CreatePatient(
 			[FromBody] Patient patient)
 		{
-			if (_patientServiceDbService.FindPatient(patient.FirstName,
+			if (_patientDbService.FindPatient(patient.FirstName,
 				patient.LastName, patient.DateOfBirth) != null) {
 				return BadRequest("Patient already exists.");
 			}
 
-			_patientServiceDbService.AddPatient(patient);
+			_patientDbService.AddPatient(patient);
 
 			return NoContent();
 		}
@@ -127,7 +127,7 @@ namespace PatientService.Controllers
 				return BadRequest("Invalid guid.");
 			}
 
-			patient = _patientServiceDbService.FindPatient(id);
+			patient = _patientDbService.FindPatient(id);
 			if (patient == null) {
 				return NotFound();
 			}
@@ -136,7 +136,7 @@ namespace PatientService.Controllers
 			patient = patientDTO;
 			patient.Id = id;
 
-			_patientServiceDbService.UpdatePatient(patient);
+			_patientDbService.UpdatePatient(patient);
 
 			return Ok(patient);
 		}
@@ -153,12 +153,12 @@ namespace PatientService.Controllers
 				return BadRequest("Invalid guid.");
 			}
 
-			patient = _patientServiceDbService.FindPatient(id);
+			patient = _patientDbService.FindPatient(id);
 			if (patient == null) {
 				return NotFound("Patient not found.");
 			}
 
-			_patientServiceDbService.RemovePatient(patient);
+			_patientDbService.RemovePatient(patient);
 
 			return NoContent();
 		}
@@ -178,7 +178,7 @@ namespace PatientService.Controllers
 				return BadRequest("Empty guid.");
 			}
 
-			patientContact = _patientServiceDbService.FindPatientContact(id);
+			patientContact = _patientDbService.FindPatientContact(id);
 			if (patientContact == null) {
 				return NotFound("Patient contact info not found.");
 			}
@@ -201,11 +201,11 @@ namespace PatientService.Controllers
 				return BadRequest("Empty guid.");
 			}
 
-			if (_patientServiceDbService.FindPatientContact(id) != null) {
+			if (_patientDbService.FindPatientContact(id) != null) {
 				return BadRequest("Patient already exists.");
 			}
 
-			_patientServiceDbService.AddPatientContact(patientContact);
+			_patientDbService.AddPatientContact(patientContact);
 
 			return NoContent();
 		}
@@ -246,12 +246,12 @@ namespace PatientService.Controllers
 				return BadRequest("Empty guid.");
 			}
 
-			patientContact = _patientServiceDbService.FindPatientContact(id);
+			patientContact = _patientDbService.FindPatientContact(id);
 			if (patientContact == null) {
 				return NotFound("Patient contact info not found.");
 			}
 
-			_patientServiceDbService.RemovePatientContact(patientContact);
+			_patientDbService.RemovePatientContact(patientContact);
 
 			return NoContent();
 		}
