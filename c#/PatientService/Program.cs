@@ -32,8 +32,9 @@ namespace PatientService
 					try {
 						connected = patientDbService.CanConnect();
 					} catch (DbServiceException e) {
-						logger.LogError("Cannot connect to database. Retying connection.");
-						//System.Threading.Thread.Sleep(5000);
+						logger.LogError("Cannot connect to database. Retrying connection.");
+						System.Threading.Thread.Sleep(5000);
+
 						if(retires > 3) {
 							logger.LogCritical("An error occured testing the database connection.");
 							throw e;
