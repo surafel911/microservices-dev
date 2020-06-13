@@ -15,12 +15,16 @@ using PatientServiceTest.Models;
 
 namespace PatientServiceTest
 {
-    public class PatientServiceTest
+    public class PatientServiceTest : IDisposable
     {
 		private readonly Patient _patient;
+		private readonly ILogger<PatientController> _mockLogger;
+		private readonly IHostApplicationLifetime _mockHostApplicationLifetime;
+		private readonly IPatientServiceDbService _mockPatientServiceDbService;
 
 		public PatientServiceTest()
 		{
+			// Setup
 			_patient = new Patient
 			{
 				Id = Guid.NewGuid(),
@@ -29,24 +33,25 @@ namespace PatientServiceTest
 				LastFourOfSSN = "1234",
 				DateOfBirth = DateTime.Now.AddDays(-7),
 			};
-		}
 
-		// TODO: https://xunit.net/docs/shared-context
+			_mockLogger = new NullLogger<PatientController>();
+			_mockHostApplicationLifetime = new MockHostApplicationLifetime();
+			_mockPatientServiceDbService = new MockPatientServiceDbService();
+			
+			_mockPatientServiceDbService.AddPatient(_patient);
+		}
+	
+		public void Dispose()
+		{
+		}
 
 		[Fact]
 		public void TestGetHealth()
 		{
-			ILogger<PatientController> mockLogger =
-				new NullLogger<PatientController>();
-			IHostApplicationLifetime mockHostApplicationLifetime = 
-				new MockHostApplicationLifetime();
-			IPatientServiceDbService mockPatientServiceDbService = 
-				new MockPatientServiceDbService();
-			
 			PatientController patientController = new PatientController(
-				mockLogger,
-				mockHostApplicationLifetime,
-				mockPatientServiceDbService
+				_mockLogger,
+				_mockHostApplicationLifetime,
+				_mockPatientServiceDbService
 			);
 
 			// Act
@@ -60,20 +65,10 @@ namespace PatientServiceTest
 		[Fact]
 		public void TestGetPatientFromIdValidId()
 		{
-			// Setup
-			ILogger<PatientController> mockLogger =
-				new NullLogger<PatientController>();
-			IHostApplicationLifetime mockHostApplicationLifetime = 
-				new MockHostApplicationLifetime();
-			IPatientServiceDbService mockPatientServiceDbService = 
-				new MockPatientServiceDbService();
-
-			mockPatientServiceDbService.AddPatient(_patient);
-			
 			PatientController patientController = new PatientController(
-				mockLogger,
-				mockHostApplicationLifetime,
-				mockPatientServiceDbService
+				_mockLogger,
+				_mockHostApplicationLifetime,
+				_mockPatientServiceDbService
 			);
 
 			// Act
@@ -87,18 +82,10 @@ namespace PatientServiceTest
 		[Fact]
 		public void TestGetPatientFromIdEmptyId()
 		{
-			// Setup
-			ILogger<PatientController> mockLogger =
-				new NullLogger<PatientController>();
-			IHostApplicationLifetime mockHostApplicationLifetime = 
-				new MockHostApplicationLifetime();
-			IPatientServiceDbService mockPatientServiceDbService = 
-				new MockPatientServiceDbService();
-			
 			PatientController patientController = new PatientController(
-				mockLogger,
-				mockHostApplicationLifetime,
-				mockPatientServiceDbService
+				_mockLogger,
+				_mockHostApplicationLifetime,
+				_mockPatientServiceDbService
 			);
 
 			// Act
@@ -113,20 +100,10 @@ namespace PatientServiceTest
 		public void TestGetPatientFromIdPatientNotFound()
 
 		{
-			// Setup
-			ILogger<PatientController> mockLogger =
-				new NullLogger<PatientController>();
-			IHostApplicationLifetime mockHostApplicationLifetime = 
-				new MockHostApplicationLifetime();
-			IPatientServiceDbService mockPatientServiceDbService = 
-				new MockPatientServiceDbService();
-			
-			mockPatientServiceDbService.AddPatient(_patient);
-			
 			PatientController patientController = new PatientController(
-				mockLogger,
-				mockHostApplicationLifetime,
-				mockPatientServiceDbService
+				_mockLogger,
+				_mockHostApplicationLifetime,
+				_mockPatientServiceDbService
 			);
 
 			// Act
@@ -140,20 +117,10 @@ namespace PatientServiceTest
         [Fact]
         public void TestGetPatientFromQueryValidQuery()
 		{
-			// Setup
-			ILogger<PatientController> mockLogger =
-				new NullLogger<PatientController>();
-			IHostApplicationLifetime mockHostApplicationLifetime = 
-				new MockHostApplicationLifetime();
-			IPatientServiceDbService mockPatientServiceDbService = 
-				new MockPatientServiceDbService();
-			
-			mockPatientServiceDbService.AddPatient(_patient);
-			
 			PatientController patientController = new PatientController(
-				mockLogger,
-				mockHostApplicationLifetime,
-				mockPatientServiceDbService
+				_mockLogger,
+				_mockHostApplicationLifetime,
+				_mockPatientServiceDbService
 			);
 
 			// Act
@@ -170,20 +137,10 @@ namespace PatientServiceTest
 		[InlineData(null)]
 		public void TestGetPatientFromQueryNullQuery(string value)
 		{
-			// Setup
-			ILogger<PatientController> mockLogger =
-				new NullLogger<PatientController>();
-			IHostApplicationLifetime mockHostApplicationLifetime = 
-				new MockHostApplicationLifetime();
-			IPatientServiceDbService mockPatientServiceDbService = 
-				new MockPatientServiceDbService();
-			
-			mockPatientServiceDbService.AddPatient(_patient);
-			
 			PatientController patientController = new PatientController(
-				mockLogger,
-				mockHostApplicationLifetime,
-				mockPatientServiceDbService
+				_mockLogger,
+				_mockHostApplicationLifetime,
+				_mockPatientServiceDbService
 			);
 
 			// Act
@@ -198,20 +155,10 @@ namespace PatientServiceTest
 		[Fact]
 		public void TestGetPatientFromQueryPatientNotFound()
 		{
-			// Setup
-			ILogger<PatientController> mockLogger =
-				new NullLogger<PatientController>();
-			IHostApplicationLifetime mockHostApplicationLifetime = 
-				new MockHostApplicationLifetime();
-			IPatientServiceDbService mockPatientServiceDbService = 
-				new MockPatientServiceDbService();
-			
-			mockPatientServiceDbService.AddPatient(_patient);
-			
 			PatientController patientController = new PatientController(
-				mockLogger,
-				mockHostApplicationLifetime,
-				mockPatientServiceDbService
+				_mockLogger,
+				_mockHostApplicationLifetime,
+				_mockPatientServiceDbService
 			);
 
 			// Act
