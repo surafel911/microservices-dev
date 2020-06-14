@@ -368,7 +368,7 @@ ASALocalRun/
 healthchecksdb
 
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
-MigrationBackup/
+igrationBackup/
 
 ##
 ## Visual studio for Mac
@@ -376,7 +376,7 @@ MigrationBackup/
 
 
 # globs
-Makefile.in
+akefile.in
 *.userprefs
 *.usertasks
 config.make
