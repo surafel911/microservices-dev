@@ -34,13 +34,13 @@ namespace PatientService
 			
 			services.AddControllers();
 
-			services.AddDbContext<PatientServiceDbContext>(options =>
-				options.UseNpgsql(Configuration.GetConnectionString("PatientServiceDbContext")));
+			services.AddDbContext<PatientDbContext>(options =>
+				options.UseNpgsql(Configuration.GetConnectionString("PatientDbContext")));
 
 			if (string.IsNullOrEmpty(Configuration["ORM"]) || Configuration["ORM"] == "EfCore") {
-				services.AddScoped<IPatientServiceDbService, PatientServiceEfCoreDbService>();
+				services.AddScoped<IPatientDbService, PatientEfCoreDbService>();
 			} else {
-				services.AddScoped<IPatientServiceDbService, PatientServiceDapperDbService>();
+				services.AddScoped<IPatientDbService, PatientDapperDbService>();
 			}
 		}
 
@@ -51,7 +51,6 @@ namespace PatientService
 
 			logger = app.ApplicationServices.CreateScope().ServiceProvider
 				.GetRequiredService<ILogger<Startup>>();
-
 
 			if (env.IsDevelopment()) {
 				app.UseDeveloperExceptionPage();

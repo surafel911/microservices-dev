@@ -57,18 +57,14 @@ namespace PatientService.Models
         public static void Initialize(IServiceProvider serviceProvider)
         {
 			HttpClient httpClient;
-			PatientServiceDbContext patientServiceDbContext;
-			IPatientServiceDbService patientServiceDbService;
+			IPatientDbService patientDbService;
 
 			httpClient = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient();
 
-            patientServiceDbContext = new PatientServiceDbContext(
-                serviceProvider.GetRequiredService<DbContextOptions<PatientServiceDbContext>>());
-
-			patientServiceDbService = serviceProvider.CreateScope().ServiceProvider
-				.GetRequiredService<IPatientServiceDbService>();
+			patientDbService = serviceProvider.CreateScope().ServiceProvider
+				.GetRequiredService<IPatientDbService>();
             			
-            if (patientServiceDbContext.Patients.Any()) {
+            if (patientDbService.AnyPatients()) {
                 return;
             }
 
@@ -87,10 +83,8 @@ namespace PatientService.Models
 				patientContacts.Add(patientContact);
 			}
 
-			patientServiceDbContext.Patients.AddRange(patients);
-			patientServiceDbContext.PatientContacts.AddRange(patientContacts);
-
-            patientServiceDbContext.SaveChanges();
+			patientDbService.AddPatientRange(patients.Cast<Patient>());
+			patientDbService.AddPatientContactRange(patientContacts.Cast<PatientContact>());
         }
     }
 }
