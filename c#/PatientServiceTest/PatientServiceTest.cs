@@ -52,6 +52,9 @@ namespace PatientServiceTest
 		{
 		}
 
+		// TODO: Add tests to make sure that the error strings are not empty.
+		// TODO: Add tests that look into mock db and check if patients are really there.
+
 		[Fact]
 		public void TestGetHealth()
 		{
@@ -133,6 +136,94 @@ namespace PatientServiceTest
 			// Assert
 			Assert.IsType<NotFoundObjectResult>(result);
 			Assert.IsType<string>(((NotFoundObjectResult)result).Value);
+		}
+
+		[Fact]
+		public void TestCreatePatientValidPatient()
+		{
+			// Act
+			IActionResult result = _patientController.CreatePatient(new Patient {
+				FirstName = "Adam",
+				LastName = "Johnson",
+				LastFourOfSSN = "5678",
+				DateOfBirth = DateTime.Now
+			});
+
+			// Assert
+			Assert.IsType<NoContentResult>(result);
+		} 
+
+		[Fact]
+		public void TestCreatePatientNullPatient()
+		{
+			// Act
+			IActionResult result = _patientController.CreatePatient(null);
+
+			// Assert
+			Assert.IsType<BadRequestObjectResult>(result);
+			Assert.IsType<string>(((BadRequestObjectResult)result).Value);
+		}
+
+		[Fact]
+		public void TestCreatePatientAlreadyExists()
+		{
+			// Act
+			IActionResult result = _patientController.CreatePatient(_patient);
+
+			// Assert
+			Assert.IsType<BadRequestObjectResult>(result);
+			Assert.IsType<string>(((BadRequestObjectResult)result).Value);
+		}
+
+		[Theory]
+		[InlineData("")]
+		[InlineData(null)]
+		public void TestCreatePatientInvalidFirstName(string value)
+		{
+			// Act
+			IActionResult result = _patientController.CreatePatient(new Patient {
+				FirstName = value,
+				LastName = "Johnson",
+				LastFourOfSSN = "5678",
+				DateOfBirth = DateTime.Now
+			});
+
+			// Assert
+			Assert.IsType<BadRequestResult>(result);
+		}
+
+		[Theory]
+		[InlineData("")]
+		[InlineData(null)]
+		public void TestCreatePatientInvalidLastName(string value)
+		{
+			// Act
+			IActionResult result = _patientController.CreatePatient(new Patient {
+				FirstName = "Adam",
+				LastName = value,
+				LastFourOfSSN = "5678",
+				DateOfBirth = DateTime.Now
+			});
+
+			// Assert
+			Assert.IsType<BadRequestResult>(result);
+		}
+
+		[Theory]
+		[InlineData("")]
+		[InlineData(null)]
+		public void TestCreatePatientInvalidLastFourOfSSN(string value)
+		{
+			// Act
+			IActionResult result = _patientController.CreatePatient(new Patient {
+				FirstName = "Adam",
+				LastName = "Johnson",
+				LastFourOfSSN = value,
+				DateOfBirth = DateTime.Now
+			});
+
+			// Assert
+			Assert.IsType<BadRequestResult>(result);
 		}
     }
 }
