@@ -7,12 +7,12 @@ using PatientService.Services;
 
 namespace PatientServiceTest.Models
 {
-	public class MockPatientServiceDbService : IPatientServiceDbService
+	public class MockPatientDbService : IPatientDbService
 	{
 		private IList<Patient> patientList;
 		private IList<PatientContact> patientContactList;
 
-		public MockPatientServiceDbService()
+		public MockPatientDbService()
 		{
 			patientList = new List<Patient>();
 			patientContactList = new List<PatientContact>();
@@ -31,9 +31,18 @@ namespace PatientServiceTest.Models
 		{
 		}
 
+		public bool AnyPatients()
+		{
+			return true;
+		}
+
 		public void AddPatient(Patient patient)
 		{
 			patientList.Add(patient);
+		}
+
+		public void AddPatientRange(IEnumerable<Patient> patients)
+		{
 		}
 
 		public Patient FindPatient(Guid id)
@@ -66,6 +75,10 @@ namespace PatientServiceTest.Models
 		}
 
 		public void AddPatientContact(PatientContact patientContact)
+		{
+		}
+		
+		public void AddPatientContactRange(IEnumerable<PatientContact> patientContacts)
 		{
 		}
 
