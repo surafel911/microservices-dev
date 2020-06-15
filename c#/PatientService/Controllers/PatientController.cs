@@ -16,16 +16,16 @@ namespace PatientService.Controllers
     public class PatientController : ControllerBase
     {
 		private readonly ILogger<PatientController> _logger;
-		private readonly IHostApplicationLifetime _hostApplicationLifetime;
 		private readonly IPatientDbService _patientDbService;
+		private readonly IHostApplicationLifetime _hostApplicationLifetime;
         
         public PatientController(ILogger<PatientController> logger,
-			IHostApplicationLifetime hostApplicationLifetime,
-			IPatientDbService patientDbService)
+			IPatientDbService patientDbService,
+			IHostApplicationLifetime hostApplicationLifetime)
         {
             _logger = logger;
-			_hostApplicationLifetime = hostApplicationLifetime;
 			_patientDbService = patientDbService;
+			_hostApplicationLifetime = hostApplicationLifetime;
 		}
 
 		[HttpGet("health")]
@@ -99,6 +99,10 @@ namespace PatientService.Controllers
 		public IActionResult CreatePatient(
 			[FromBody] Patient patient)
 		{
+			if (!ModelState.IsValid) {
+				return BadRequest("Patient data is invalid.");
+			}
+
 			if (_patientDbService.FindPatient(patient.FirstName,
 				patient.LastName, patient.DateOfBirth) != null) {
 				return BadRequest("Patient already exists.");

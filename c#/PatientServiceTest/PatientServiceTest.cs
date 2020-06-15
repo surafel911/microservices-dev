@@ -19,8 +19,8 @@ namespace PatientServiceTest
     {
 		private readonly Patient _patient;
 		private readonly ILogger<PatientController> _mockLogger;
+		private readonly IPatientDbService _mockPatientDbService;
 		private readonly IHostApplicationLifetime _mockHostApplicationLifetime;
-		private readonly IPatientServiceDbService _mockPatientServiceDbService;
 		private readonly PatientController _patientController;
 
 		public PatientServiceTest()
@@ -36,15 +36,15 @@ namespace PatientServiceTest
 			};
 
 			_mockLogger = new NullLogger<PatientController>();
+			_mockPatientDbService = new MockPatientDbService();
 			_mockHostApplicationLifetime = new MockHostApplicationLifetime();
-			_mockPatientServiceDbService = new MockPatientServiceDbService();
 			
-			_mockPatientServiceDbService.AddPatient(_patient);
+			_mockPatientDbService.AddPatient(_patient);
 			
 			_patientController = new PatientController(
 				_mockLogger,
-				_mockHostApplicationLifetime,
-				_mockPatientServiceDbService
+				_mockPatientDbService,
+				_mockHostApplicationLifetime
 			);
 		}
 	
