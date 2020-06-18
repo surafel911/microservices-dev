@@ -15,7 +15,7 @@ using PatientServiceTest.Models;
 
 namespace PatientServiceTest
 {
-    public class PatientServiceTest : IDisposable
+    public class PatientServiceUnitTest : IDisposable
     {
 		private readonly Patient _patient;
 		private readonly ILogger<PatientController> _mockLogger;
