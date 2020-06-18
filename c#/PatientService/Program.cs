@@ -68,11 +68,11 @@ namespace PatientService
 							throw;
 					}
 
-					logger.LogInformation("Seeding database.");
-
 					if (string.IsNullOrEmpty(configuration["SeedDatabase"])) {
 						logger.LogWarning("SeedDatabase configuration not found/empty. Skipping database seeding.");
 					} else if (bool.Parse(configuration["SeedDatabase"])) {
+						logger.LogInformation("Seeding database.");
+						
 						try {
 							SeedData.Initialize(serviceProvider);
 						} catch (Exception e) {
