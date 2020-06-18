@@ -28,7 +28,7 @@ namespace PatientService.Services
 			try {
 				return _patientDbContext.Database.CanConnect();
 			} catch (Exception e) {
-				_logger.LogCritical(e, "An error occured in the database service.");
+				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
 		}
@@ -38,7 +38,7 @@ namespace PatientService.Services
 			try {
 				_patientDbContext.Database.EnsureCreated();
 			} catch (Exception e) {
-				_logger.LogCritical(e, "An error occured in the database service.");
+				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
 		}
@@ -48,7 +48,7 @@ namespace PatientService.Services
 			try {
 				_patientDbContext.Database.EnsureDeleted();
 			} catch (Exception e) {
-				_logger.LogCritical(e, "An error occured in the database service.");
+				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
 		}
@@ -58,7 +58,7 @@ namespace PatientService.Services
 			try {
 				return _patientDbContext.Patients.Any();
 			} catch (Exception e) {
-				_logger.LogCritical(e, "An error occured in the database service.");
+				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
 		}
@@ -69,7 +69,7 @@ namespace PatientService.Services
 				_patientDbContext.Patients.Add(patient);
 				_patientDbContext.SaveChanges();
 			} catch (Exception e) {
-				_logger.LogCritical(e, "An error occured in the database service.");
+				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
 		}
@@ -80,7 +80,7 @@ namespace PatientService.Services
 				_patientDbContext.Patients.AddRange(patients);
 				_patientDbContext.SaveChanges();
 			} catch (Exception e) {
-				_logger.LogCritical(e, "An error occured in the database service.");
+				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
 		}
@@ -90,7 +90,7 @@ namespace PatientService.Services
 			try {
 				return _patientDbContext.Patients.Find(id);
 			} catch (Exception e) {
-				_logger.LogCritical(e, "An error occured in the database service.");
+				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
 		}
@@ -110,7 +110,7 @@ namespace PatientService.Services
 				
 				return patientQueryable.First();
 			} catch (Exception e) {
-				_logger.LogCritical(e, "An error occured in the database service.");
+				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
 		}
@@ -120,7 +120,7 @@ namespace PatientService.Services
 			try {
 				_patientDbContext.Patients.Update(patient);
 			} catch (Exception e) {
-				_logger.LogCritical(e, "An error occured in the database service.");
+				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
 		}
@@ -131,7 +131,7 @@ namespace PatientService.Services
 				_patientDbContext.Patients.Remove(patient);
 				_patientDbContext.SaveChanges();
 			} catch (Exception e) {
-				_logger.LogCritical(e, "An error occured in the database service.");
+				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
 		}
@@ -142,7 +142,7 @@ namespace PatientService.Services
 				_patientDbContext.PatientContacts.Add(patientContact);
 				_patientDbContext.SaveChanges();
 			} catch (Exception e) {
-				_logger.LogCritical(e, "An error occured in the database service.");
+				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
 		}
@@ -153,7 +153,7 @@ namespace PatientService.Services
 				_patientDbContext.PatientContacts.AddRange(patientContacts);
 				_patientDbContext.SaveChanges();
 			} catch (Exception e) {
-				_logger.LogCritical(e, "An error occured in the database service.");
+				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
 		}
@@ -163,7 +163,7 @@ namespace PatientService.Services
 			try {
 				return _patientDbContext.PatientContacts.Find(patientId);
 			} catch (Exception e) {
-				_logger.LogCritical(e, "An error occured in the database service.");
+				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
 		}
@@ -174,7 +174,7 @@ namespace PatientService.Services
 				_patientDbContext.PatientContacts.Remove(patientContact);
 				_patientDbContext.SaveChanges();
 			} catch (Exception e) {
-				_logger.LogCritical(e, "An error occured in the database service.");
+				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
 		}
@@ -185,7 +185,7 @@ namespace PatientService.Services
 				_patientDbContext.PatientContacts.Update(patientContact);
 				_patientDbContext.SaveChanges();
 			} catch (Exception e) {
-				_logger.LogCritical(e, "An error occured in the database service.");
+				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
 		}
