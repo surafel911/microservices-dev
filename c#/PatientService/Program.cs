@@ -31,13 +31,13 @@ namespace PatientService
 				while (!connected) {
 					try {
 						connected = patientDbService.CanConnect();
-					} catch (DbServiceException e) {
-						logger.LogError("Cannot connect to database. Retrying connection.");
+					} catch (Exception e) {
+						logger.LogError(e, "Cannot connect to database. Retrying connection.");
 						System.Threading.Thread.Sleep(5000);
 
 						if(retires > 3) {
-							logger.LogCritical("An error occured testing the database connection.");
-							throw e;
+							logger.LogCritical(e, "An error occured testing the database connection.");
+							throw;
 						} else {
 							retires++; 
 							continue;
@@ -63,9 +63,9 @@ namespace PatientService
 					try {
 						patientDbService.EnsureDeleted();
 						patientDbService.EnsureCreated();
-					} catch (DbServiceException e) {
-						logger.LogCritical("An error occured recreating the database.");
-						throw e;
+					} catch (Exception e) {
+							logger.LogCritical(e, "An error occured seeding the database.");
+							throw;
 					}
 
 					logger.LogInformation("Seeding database.");
@@ -76,8 +76,8 @@ namespace PatientService
 						try {
 							SeedData.Initialize(serviceProvider);
 						} catch (Exception e) {
-							logger.LogCritical("An error occured seeding the database.");
-							throw e;
+							logger.LogCritical(e, "An error occured seeding the database.");
+							throw;
 						}
 					} else {
 						logger.LogInformation("Skipping database seeding.");

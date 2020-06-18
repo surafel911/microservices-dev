@@ -34,7 +34,7 @@ namespace PatientService.Controllers
 		{
 			try {
 				_patientDbService.CanConnect();
-			} catch (DbServiceException e) {
+			} catch (Exception e) {
 				_logger.LogCritical(e, "An error occured testing database connection.");
 				_hostApplicationLifetime.StopApplication();
 			}
@@ -63,8 +63,6 @@ namespace PatientService.Controllers
 
 			return Ok(patient);
 		}
-
-		// TODO: Fucking test w/ having dateOfBirth enabled
 
         [HttpGet]
 		[Produces("application/json")]

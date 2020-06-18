@@ -27,12 +27,9 @@ namespace PatientService.Services
 		{
 			try {
 				return _patientDbContext.Database.CanConnect();
-			} catch (PostgresException e) {
-				throw new DbServiceException(e);
-			} catch (NpgsqlException e) {
-				throw new DbServiceException(e);
-			} catch (InvalidOperationException e) {
-				throw e;
+			} catch (Exception e) {
+				_logger.LogCritical(e, "An error occured in the database service.");
+				throw;
 			}
 		}
 
@@ -40,12 +37,9 @@ namespace PatientService.Services
 		{
 			try {
 				_patientDbContext.Database.EnsureCreated();
-			} catch (PostgresException e) {
-				throw new DbServiceException(e);
-			} catch (NpgsqlException e) {
-				throw new DbServiceException(e);
-			} catch (InvalidOperationException e) {
-				throw e;
+			} catch (Exception e) {
+				_logger.LogCritical(e, "An error occured in the database service.");
+				throw;
 			}
 		}
 
@@ -53,12 +47,9 @@ namespace PatientService.Services
 		{
 			try {
 				_patientDbContext.Database.EnsureDeleted();
-			} catch (PostgresException e) {
-				throw new DbServiceException(e);
-			} catch (NpgsqlException e) {
-				throw new DbServiceException(e);
-			} catch (InvalidOperationException e) {
-				throw e;
+			} catch (Exception e) {
+				_logger.LogCritical(e, "An error occured in the database service.");
+				throw;
 			}
 		}
 
@@ -66,12 +57,9 @@ namespace PatientService.Services
 		{
 			try {
 				return _patientDbContext.Patients.Any();
-			} catch (PostgresException e) {
-				throw new DbServiceException(e);
-			} catch (NpgsqlException e) {
-				throw new DbServiceException(e);
-			} catch (InvalidOperationException e) {
-				throw e;
+			} catch (Exception e) {
+				_logger.LogCritical(e, "An error occured in the database service.");
+				throw;
 			}
 		}
 
@@ -80,12 +68,9 @@ namespace PatientService.Services
 			try {
 				_patientDbContext.Patients.Add(patient);
 				_patientDbContext.SaveChanges();
-			} catch (PostgresException e) {
-				throw new DbServiceException(e);
-			} catch (NpgsqlException e) {
-				throw new DbServiceException(e);
-			} catch (InvalidOperationException e) {
-				throw e;
+			} catch (Exception e) {
+				_logger.LogCritical(e, "An error occured in the database service.");
+				throw;
 			}
 		}
 
@@ -94,12 +79,9 @@ namespace PatientService.Services
 			try {
 				_patientDbContext.Patients.AddRange(patients);
 				_patientDbContext.SaveChanges();
-			} catch (PostgresException e) {
-				throw new DbServiceException(e);
-			} catch (NpgsqlException e) {
-				throw new DbServiceException(e);
-			} catch (InvalidOperationException e) {
-				throw e;
+			} catch (Exception e) {
+				_logger.LogCritical(e, "An error occured in the database service.");
+				throw;
 			}
 		}
 
@@ -107,12 +89,9 @@ namespace PatientService.Services
 		{
 			try {
 				return _patientDbContext.Patients.Find(id);
-			} catch (PostgresException e) {
-				throw new DbServiceException(e);
-			} catch (NpgsqlException e) {
-				throw new DbServiceException(e);
-			} catch (InvalidOperationException e) {
-				throw e;
+			} catch (Exception e) {
+				_logger.LogCritical(e, "An error occured in the database service.");
+				throw;
 			}
 		}
 
@@ -130,12 +109,9 @@ namespace PatientService.Services
 				} 
 				
 				return patientQueryable.First();
-			} catch (PostgresException e) {
-				throw new DbServiceException(e);
-			} catch (NpgsqlException e) {
-				throw new DbServiceException(e);
-			} catch (InvalidOperationException e) {
-				throw e;
+			} catch (Exception e) {
+				_logger.LogCritical(e, "An error occured in the database service.");
+				throw;
 			}
 		}
 
@@ -143,13 +119,10 @@ namespace PatientService.Services
 		{
 			try {
 				_patientDbContext.Patients.Update(patient);
-			} catch (PostgresException e) {
-				throw new DbServiceException(e);
-			} catch (NpgsqlException e) {
-				throw new DbServiceException(e);
-			} catch (InvalidOperationException e) {
-				throw e;
-			}  
+			} catch (Exception e) {
+				_logger.LogCritical(e, "An error occured in the database service.");
+				throw;
+			}
 		}
 
 		public void RemovePatient(Patient patient)
@@ -157,12 +130,9 @@ namespace PatientService.Services
 			try {
 				_patientDbContext.Patients.Remove(patient);
 				_patientDbContext.SaveChanges();
-			} catch (PostgresException e) {
-				throw new DbServiceException(e);
-			} catch (NpgsqlException e) {
-				throw new DbServiceException(e);
-			} catch (InvalidOperationException e) {
-				throw e;
+			} catch (Exception e) {
+				_logger.LogCritical(e, "An error occured in the database service.");
+				throw;
 			}
 		}
 
@@ -171,12 +141,9 @@ namespace PatientService.Services
 			try {
 				_patientDbContext.PatientContacts.Add(patientContact);
 				_patientDbContext.SaveChanges();
-			} catch (PostgresException e) {
-				throw new DbServiceException(e);
-			} catch (NpgsqlException e) {
-				throw new DbServiceException(e);
-			} catch (InvalidOperationException e) {
-				throw e;
+			} catch (Exception e) {
+				_logger.LogCritical(e, "An error occured in the database service.");
+				throw;
 			}
 		}
 
@@ -185,12 +152,9 @@ namespace PatientService.Services
 			try {
 				_patientDbContext.PatientContacts.AddRange(patientContacts);
 				_patientDbContext.SaveChanges();
-			} catch (PostgresException e) {
-				throw new DbServiceException(e);
-			} catch (NpgsqlException e) {
-				throw new DbServiceException(e);
-			} catch (InvalidOperationException e) {
-				throw e;
+			} catch (Exception e) {
+				_logger.LogCritical(e, "An error occured in the database service.");
+				throw;
 			}
 		}
 
@@ -198,12 +162,9 @@ namespace PatientService.Services
 		{
 			try {
 				return _patientDbContext.PatientContacts.Find(patientId);
-			} catch (PostgresException e) {
-				throw new DbServiceException(e);
-			} catch (NpgsqlException e) {
-				throw new DbServiceException(e);
-			} catch (InvalidOperationException e) {
-				throw e;
+			} catch (Exception e) {
+				_logger.LogCritical(e, "An error occured in the database service.");
+				throw;
 			}
 		}
 
@@ -212,12 +173,9 @@ namespace PatientService.Services
 			try {
 				_patientDbContext.PatientContacts.Remove(patientContact);
 				_patientDbContext.SaveChanges();
-			} catch (PostgresException e) {
-				throw new DbServiceException(e);
-			} catch (NpgsqlException e) {
-				throw new DbServiceException(e);
-			} catch (InvalidOperationException e) {
-				throw e;
+			} catch (Exception e) {
+				_logger.LogCritical(e, "An error occured in the database service.");
+				throw;
 			}
 		}
 
@@ -226,12 +184,9 @@ namespace PatientService.Services
 			try {
 				_patientDbContext.PatientContacts.Update(patientContact);
 				_patientDbContext.SaveChanges();
-			} catch (PostgresException e) {
-				throw new DbServiceException(e);
-			} catch (NpgsqlException e) {
-				throw new DbServiceException(e);
-			} catch (InvalidOperationException e) {
-				throw e;
+			} catch (Exception e) {
+				_logger.LogCritical(e, "An error occured in the database service.");
+				throw;
 			}
 		}
     }
