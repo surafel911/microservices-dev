@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Text.Json;
+using System.Collections.Generic;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
@@ -97,10 +97,6 @@ namespace PatientService.Controllers
 		public IActionResult CreatePatient(
 			[FromBody] Patient patient)
 		{
-			if (!ModelState.IsValid) {
-				return BadRequest("Patient data is invalid.");
-			}
-
 			if (_patientDbService.FindPatient(patient.FirstName,
 				patient.LastName, patient.DateOfBirth) != null) {
 				return BadRequest("Patient already exists.");
