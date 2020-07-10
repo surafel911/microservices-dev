@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Hosting;
 
 using PatientService.Models;
 using PatientService.Services;
@@ -17,15 +16,13 @@ namespace PatientService.Controllers
     {
 		private readonly ILogger<PatientController> _logger;
 		private readonly IPatientDbService _patientDbService;
-		private readonly IHostApplicationLifetime _hostApplicationLifetime;
-        
-        public PatientController(ILogger<PatientController> logger,
-			IPatientDbService patientDbService,
-			IHostApplicationLifetime hostApplicationLifetime)
+
+        public PatientController(
+			ILogger<PatientController> logger,
+			IPatientDbService patientDbService)
         {
             _logger = logger;
 			_patientDbService = patientDbService;
-			_hostApplicationLifetime = hostApplicationLifetime;
 		}
 
 		[HttpGet("health")]
@@ -36,7 +33,7 @@ namespace PatientService.Controllers
 				_patientDbService.CanConnect();
 			} catch (Exception e) {
 				_logger.LogCritical(e, "An error occured testing database connection.");
-				_hostApplicationLifetime.StopApplication();
+				throw;
 			}
 
 			return Ok("Service healthy.");
@@ -183,7 +180,7 @@ namespace PatientService.Controllers
 
 			return Ok(patientContact);
         }
-		
+
 		[HttpPost("{id}/contact")]
 		[Consumes("application/json")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
