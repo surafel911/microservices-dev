@@ -31,16 +31,19 @@ namespace PatientService
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddHttpClient();
-			
+
 			services.AddControllers();
 
 			services.AddDbContext<PatientDbContext>(options =>
 				options.UseNpgsql(Configuration.GetConnectionString("PatientDbContext")));
 
-			if (string.IsNullOrEmpty(Configuration["ORM"]) || Configuration["ORM"] == "EfCore") {
-				services.AddScoped<IPatientDbService, PatientEfCoreDbService>();
-			} else {
+			switch (ConfigurationBinder.GetValue<int>(Configuration, "PATIENTSERVICE_ORM")) {
+			case 2:
 				services.AddScoped<IPatientDbService, PatientDapperDbService>();
+				break;
+			default:
+				services.AddScoped<IPatientDbService, PatientEfCoreDbService>();
+				break;
 			}
 		}
 
@@ -57,7 +60,7 @@ namespace PatientService
 			} else {
 				app.UseExceptionHandler("/error");
 			}
-			
+
 			app.UseRouting();
 
 			app.UseAuthorization();

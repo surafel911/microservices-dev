@@ -28,6 +28,7 @@ namespace PatientService
 
 				int retires = 0;
 				bool connected = false;
+
 				while (!connected) {
 					try {
 						connected = patientDbService.CanConnect();
@@ -39,17 +40,17 @@ namespace PatientService
 							logger.LogCritical(e, "An error occured testing the database connection.");
 							throw;
 						} else {
-							retires++; 
+							retires++;
 							continue;
 						}
 					}
 				}
 
-				switch (configuration["ORM"]) {
-				case "EfCore":
+				switch (ConfigurationBinder.GetValue<int>(configuration, "PATIENTSERVICE_ORM")) {
+				case 1:
 					logger.LogInformation("Entity Framework Core ORM chosen.");
 					break;
-				case "Dapper":
+				case 2:
 					logger.LogInformation("Dapper ORM chosen.");
 					break;
 				default:
@@ -72,7 +73,7 @@ namespace PatientService
 						logger.LogWarning("SeedDatabase configuration not found/empty. Skipping database seeding.");
 					} else if (bool.Parse(configuration["SeedDatabase"])) {
 						logger.LogInformation("Seeding database.");
-						
+
 						try {
 							SeedData.Initialize(serviceProvider);
 						} catch (Exception e) {
