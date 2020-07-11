@@ -1,4 +1,6 @@
 using System;
+using System.Net.Http;
+using System.Data.Common;
 using System.Configuration;
 
 using Microsoft.AspNetCore.Hosting;
@@ -14,6 +16,117 @@ namespace PatientService
 {
     public class Program
     {
+		private static int MaxRetries = 5;
+
+		private static void LogOrmConfig(
+			ILogger<Program> logger,
+			IConfiguration configuration)
+		{
+			switch (ConfigurationBinder.GetValue<int>(configuration, "PATIENTSERVICE_ORM")) {
+			case 1:
+				logger.LogInformation("Entity Framework Core ORM chosen.");
+				break;
+			case 2:
+				logger.LogInformation("Dapper ORM chosen.");
+				break;
+			default:
+				logger.LogWarning("Defaulting to Entity Framework Core ORM.");
+				break;
+			}
+		}
+
+		private static void EnsureDbCreated(
+			ILogger<Program> logger,
+			IPatientDbService patientDbService,
+			IWebHostEnvironment webHostEnvironment)
+		{
+			int retries = 0;
+			bool created = false;
+
+			if (webHostEnvironment.IsDevelopment()) {
+				logger.LogInformation("Creating new database.");
+
+				do {
+					try {
+						patientDbService.EnsureDeleted();
+						patientDbService.EnsureCreated();
+
+						created = true;
+					} catch (Exception e) {
+						if (retries < MaxRetries) {
+							logger.LogError(e, "Connection to DBMS failed. Retrying connection.");
+							System.Threading.Thread.Sleep(5000);
+
+							retries++;
+						} else {
+							logger.LogCritical(e, "Failed to connect to create database.");
+							throw;
+						}
+					}
+				} while (!created);
+			} else  {
+				if (!patientDbService.CanConnect()) {
+					logger.LogInformation("Cannot connect to database, Creating new database.");
+
+					do {
+						try {
+							patientDbService.EnsureCreated();
+						} catch (Exception e) {
+							if (retries < MaxRetries) {
+								logger.LogError(e, "Connection to DBMS failed. Retrying connection.");
+								System.Threading.Thread.Sleep(5000);
+
+								retries++;
+							} else {
+								logger.LogCritical(e, "Failed to connect to create database.");
+								throw;
+							}
+						}
+					} while (!created);
+				}
+			}
+		}
+
+		private static void TestDbConnection(
+			ILogger<Program> logger,
+			IPatientDbService patientDbService)
+		{
+			for (int i = 0; i < MaxRetries - 1; i++) {
+				if (patientDbService.CanConnect()) {
+					logger.LogInformation("Successfully connected to database.");
+					return;
+				}
+
+				logger.LogError("Cannot connect to database. Retrying connection.");
+				System.Threading.Thread.Sleep(5000);
+			}
+
+			if (patientDbService.CanConnect()) {
+				logger.LogInformation("Successfully connected to database.");
+				return;
+			} else {
+				logger.LogCritical("Failed to connect to database.");
+			}
+		}
+
+		private static void SeedDb(
+			ILogger<Program> logger,
+			IConfiguration configuration,
+			IServiceProvider serviceProvider,
+			IPatientDbService patientDbService,
+			IWebHostEnvironment webHostEnvironment)
+		{
+			bool seedDb = false;
+			if (webHostEnvironment.IsDevelopment()) {
+				if (Boolean.TryParse(configuration["PATIENTSERVICE_SEED_DB"], out seedDb) && seedDb) {
+					logger.LogInformation("Seeding database.");
+
+					SeedData.Initialize(patientDbService,
+						serviceProvider.GetRequiredService<IHttpClientFactory>());
+				}
+			}
+		}
+
         public static void Main(string[] args)
         {
             IHost host = CreateHostBuilder(args).Build();
@@ -26,64 +139,13 @@ namespace PatientService
 				IPatientDbService patientDbService = serviceProvider.GetRequiredService<IPatientDbService>();
 				IWebHostEnvironment webHostEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
 
-				int retires = 0;
-				bool connected = false;
+				// TODO: Write environment name in log
+				logger.LogInformation("Enirovnment: " + webHostEnvironment.EnvironmentName);
 
-				while (!connected) {
-					try {
-						connected = patientDbService.CanConnect();
-					} catch (Exception e) {
-						logger.LogError(e, "Cannot connect to database. Retrying connection.");
-						System.Threading.Thread.Sleep(5000);
-
-						if(retires > 3) {
-							logger.LogCritical(e, "An error occured testing the database connection.");
-							throw;
-						} else {
-							retires++;
-							continue;
-						}
-					}
-				}
-
-				switch (ConfigurationBinder.GetValue<int>(configuration, "PATIENTSERVICE_ORM")) {
-				case 1:
-					logger.LogInformation("Entity Framework Core ORM chosen.");
-					break;
-				case 2:
-					logger.LogInformation("Dapper ORM chosen.");
-					break;
-				default:
-					logger.LogWarning("No/invalid ORM chosen. Defaulting to Entity Framework Core ORM.");
-					break;
-				}
-
-				if (webHostEnvironment.IsDevelopment()) {
-					logger.LogInformation("Creating database.");
-
-					try {
-						patientDbService.EnsureDeleted();
-						patientDbService.EnsureCreated();
-					} catch (Exception e) {
-							logger.LogCritical(e, "An error occured seeding the database.");
-							throw;
-					}
-
-					if (string.IsNullOrEmpty(configuration["SeedDatabase"])) {
-						logger.LogWarning("SeedDatabase configuration not found/empty. Skipping database seeding.");
-					} else if (bool.Parse(configuration["SeedDatabase"])) {
-						logger.LogInformation("Seeding database.");
-
-						try {
-							SeedData.Initialize(serviceProvider);
-						} catch (Exception e) {
-							logger.LogCritical(e, "An error occured seeding the database.");
-							throw;
-						}
-					} else {
-						logger.LogInformation("Skipping database seeding.");
-					}
-				}
+				LogOrmConfig(logger, configuration);
+				EnsureDbCreated(logger, patientDbService, webHostEnvironment);
+				TestDbConnection(logger, patientDbService);
+				SeedDb(logger, configuration, serviceProvider, patientDbService, webHostEnvironment);
 			}
 
 			host.Run();

@@ -29,8 +29,8 @@ namespace PatientService.Models
 			JsonElement idElement = patientElement.GetProperty("id");
 			JsonElement nameElement = patientElement.GetProperty("name");
 			JsonElement dateOfBirthElement = patientElement.GetProperty("dob");
-				
-			return new Patient 
+
+			return new Patient
 				{
 					Id = Guid.NewGuid(),
 					FirstName = nameElement.GetProperty("first").GetString(),
@@ -40,11 +40,13 @@ namespace PatientService.Models
 				};
 		}
 
-		private static PatientContact GetPatientContactFromJsonElement(JsonElement patientElement, Patient patient)
+		private static PatientContact GetPatientContactFromJsonElement(
+			JsonElement patientElement,
+			Patient patient)
 		{
 			JsonElement emailAddressElement = patientElement.GetProperty("email");
 			JsonElement phoneNumberElement = patientElement.GetProperty("cell");
-	
+
 			return new PatientContact
 				{
 					PatientId = patient.Id,
@@ -54,26 +56,21 @@ namespace PatientService.Models
 				};
 		}
 
-        public static void Initialize(IServiceProvider serviceProvider)
+        public static void Initialize(
+			IPatientDbService patientDbService,
+			IHttpClientFactory httpClientFactory)
         {
 			HttpClient httpClient;
-			IPatientDbService patientDbService;
 
-			httpClient = serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient();
-
-			patientDbService = serviceProvider.CreateScope().ServiceProvider
-				.GetRequiredService<IPatientDbService>();
-            			
-            if (patientDbService.AnyPatients()) {
-                return;
-            }
+			httpClient = httpClientFactory.CreateClient();
 
             ICollection<Patient> patients = new List<Patient>();
             ICollection<PatientContact> patientContacts = new List<PatientContact>();
-            
-			JsonElement patientsElement = JsonDocument.Parse(GetRandomPatientData(httpClient).Result)
+
+			JsonElement patientsElement = JsonDocument
+				.Parse(GetRandomPatientData(httpClient).Result)
 				.RootElement.GetProperty("results");
-				
+
 			foreach (JsonElement patientElement in patientsElement.EnumerateArray()) {
 				Patient patient = GetPatientFromJsonElement(patientElement);
 
