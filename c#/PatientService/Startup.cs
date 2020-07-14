@@ -1,6 +1,4 @@
 using System;
-using System.Configuration;
-using System.Collections.Generic;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -8,12 +6,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-using Npgsql;
 using Microsoft.EntityFrameworkCore;
 
 using PatientService.Data;
-using PatientService.Models;
 using PatientService.Services;
 
 namespace PatientService
@@ -27,27 +24,29 @@ namespace PatientService
 			Configuration = configuration;
 		}
 
-		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddHttpClient();
-
 			services.AddControllers();
-
 			services.AddDbContext<PatientDbContext>(options =>
 				options.UseNpgsql(Configuration.GetConnectionString("PatientDbContext")));
 
 			switch (ConfigurationBinder.GetValue<int>(Configuration, "PATIENTSERVICE_ORM")) {
 			case 2:
 				services.AddScoped<IPatientDbService, PatientDapperDbService>();
+				services.AddHealthChecks()
+					.AddNpgSql(Configuration.GetConnectionString("PatientDbContext"));
 				break;
 			default:
 				services.AddScoped<IPatientDbService, PatientEfCoreDbService>();
+				services.AddHealthChecks()
+					.AddDbContextCheck<PatientDbContext>();
 				break;
 			}
+
+			// TODO: Add health check monitoring.
 		}
 
-		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
 			ILogger<Startup> logger;
@@ -68,6 +67,7 @@ namespace PatientService
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllers();
+				endpoints.MapHealthChecks("/health");
 			});
 		}
 	}

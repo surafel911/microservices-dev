@@ -25,20 +25,6 @@ namespace PatientService.Controllers
 			_patientDbService = patientDbService;
 		}
 
-		[HttpGet("health")]
-		[ProducesResponseType(StatusCodes.Status200OK)]
-		public IActionResult GetHealth()
-		{
-			try {
-				_patientDbService.CanConnect();
-			} catch (Exception e) {
-				_logger.LogCritical(e, "An error occured testing database connection.");
-				throw;
-			}
-
-			return Ok("Service healthy.");
-		}
-
 		[HttpGet("{id}")]
 		[Produces("application/json")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
@@ -48,7 +34,7 @@ namespace PatientService.Controllers
 		{
 			Patient patient = null;
 
-			if (id == null || id == Guid.Empty) {
+			if (id == Guid.Empty) {
 				return BadRequest("Invalid guid.");
 			}
 
@@ -73,8 +59,7 @@ namespace PatientService.Controllers
         {
 			Patient patient = null;
 
-			if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName) ||
-					dateOfBirth == null) {
+			if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName)) {
 				return BadRequest("Invalid request parameter.");
 			}
 
