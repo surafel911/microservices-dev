@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
@@ -30,7 +31,7 @@ namespace PatientService.Controllers
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
-		public IActionResult GetPatient(Guid id)
+		public IActionResult GetPatient([GuidNotEmpty] Guid id)
 		{
 			Patient patient = null;
 
@@ -41,7 +42,7 @@ namespace PatientService.Controllers
 			patient = _patientDbService.FindPatient(id);
 
 			if (patient == null) {
-				return NotFound("Patient not found.");
+				return NotFound();
 			}
 
 			return Ok(patient);
@@ -53,18 +54,13 @@ namespace PatientService.Controllers
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetPatient(
-			[FromQuery] string firstName,
-			[FromQuery] string lastName,
-			[FromQuery] DateTime dateOfBirth)
+			[Required] [StringLength(40)] [RegularExpression(@"^[a-zA-Z''-'\s]*$")] [FromQuery] string firstName,
+			[Required] [StringLength(40)] [RegularExpression(@"^[a-zA-Z''-'\s]*$")] [FromQuery] string lastName,
+			[Required] [FromQuery] DateTime dateOfBirth)
         {
 			Patient patient = null;
 
-			if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName)) {
-				return BadRequest("Invalid request parameter.");
-			}
-
 			patient = _patientDbService.FindPatient(firstName, lastName, dateOfBirth);
-
 			if (patient == null) {
 				return NotFound("Patient not found.");
 			}
@@ -103,7 +99,7 @@ namespace PatientService.Controllers
 		{
 			Patient patient = null;
 
-			if (id == null || id == Guid.Empty) {
+			if (id == Guid.Empty) {
 				return BadRequest("Invalid guid.");
 			}
 
@@ -129,7 +125,7 @@ namespace PatientService.Controllers
 		{
 			Patient patient = null;
 
-			if (id == null || id == Guid.Empty) {
+			if (id == Guid.Empty) {
 				return BadRequest("Invalid guid.");
 			}
 
@@ -148,14 +144,20 @@ namespace PatientService.Controllers
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<PatientContact> GetPatientContact(Guid id)
+        public ActionResult<PatientContact> GetPatientContact([GuidNotEmpty] Guid id)
         {
 			// TODO: Check if patient and patient contact are both valid
 
+			Patient patient = null;
 			PatientContact patientContact = null;
 
 			if (id == Guid.Empty) {
 				return BadRequest("Empty guid.");
+			}
+
+			patient = _patientDbService.FindPatient(id);
+			if (patient == null) {
+				return BadRequest("");
 			}
 
 			patientContact = _patientDbService.FindPatientContact(id);

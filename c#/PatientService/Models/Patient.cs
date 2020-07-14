@@ -8,6 +8,7 @@ namespace PatientService.Models
 	{
 		[Key]
 		[Required]
+		[GuidNotEmpty]
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		public Guid Id { get; set; }
 

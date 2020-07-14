@@ -7,6 +7,7 @@ namespace PatientService.Models
     {
         [Key]
         [Required]
+		[GuidNotEmpty]
         public Guid PatientId { get; set; }
 
         [Required]
