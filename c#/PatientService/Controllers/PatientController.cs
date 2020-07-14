@@ -26,6 +26,8 @@ namespace PatientService.Controllers
 			_patientDbService = patientDbService;
 		}
 
+		// TODO: Convert all failure action results to Problem().
+
 		[HttpGet("{id}")]
 		[Produces("application/json")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
@@ -77,7 +79,8 @@ namespace PatientService.Controllers
 		{
 			if (_patientDbService.FindPatient(patient.FirstName,
 				patient.LastName, patient.DateOfBirth) != null) {
-				return BadRequest("Patient already exists.");
+				return Problem("Patient already exists.", default, StatusCodes.Status400BadRequest,
+					"One or more validation errors occurred.", "https://tools.ietf.org/html/rfc7231#section-6.5.1");
 			}
 
 			_patientDbService.AddPatient(patient);
@@ -85,7 +88,7 @@ namespace PatientService.Controllers
 			return NoContent();
 		}
 
-		[HttpPut("{id}")]
+		[HttpPatch("{id}")]
 		[Consumes("application/json-patch+json")]
 		[Produces("application/json")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
@@ -94,23 +97,18 @@ namespace PatientService.Controllers
 		[ProducesResponseType(StatusCodes.Status409Conflict)]
 		[ProducesResponseType(StatusCodes.Status415UnsupportedMediaType)]
 		public ActionResult<Patient> UpdatePatient(
-			Guid id,
+			[GuidNotEmpty] Guid id,
 			[FromBody] Patient patientDTO)
 		{
 			Patient patient = null;
 
-			if (id == Guid.Empty) {
-				return BadRequest("Invalid guid.");
-			}
-
-			patient = _patientDbService.FindPatient(id);
+			patient = _patientDbService.FindPatient(patientDTO.Id);
 			if (patient == null) {
 				return NotFound();
 			}
 
 			// TODO: Do a patch of the patient
 			patient = patientDTO;
-			patient.Id = id;
 
 			_patientDbService.UpdatePatient(patient);
 
@@ -121,13 +119,9 @@ namespace PatientService.Controllers
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
-		public IActionResult DeletePatient(Guid id)
+		public IActionResult DeletePatient([GuidNotEmpty] Guid id)
 		{
 			Patient patient = null;
-
-			if (id == Guid.Empty) {
-				return BadRequest("Invalid guid.");
-			}
 
 			patient = _patientDbService.FindPatient(id);
 			if (patient == null) {
@@ -151,10 +145,6 @@ namespace PatientService.Controllers
 			Patient patient = null;
 			PatientContact patientContact = null;
 
-			if (id == Guid.Empty) {
-				return BadRequest("Empty guid.");
-			}
-
 			patient = _patientDbService.FindPatient(id);
 			if (patient == null) {
 				return BadRequest("");
@@ -173,15 +163,11 @@ namespace PatientService.Controllers
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		public IActionResult CreatePatientContact(
-			Guid id,
+			[GuidNotEmpty] Guid id,
 			[FromBody] PatientContact patientContact)
 		{
 			// TODO: Finish this implementation
 			// TODO: Check if patient and patient contact are both valid
-
-			if (id == Guid.Empty) {
-				return BadRequest("Empty guid.");
-			}
 
 			if (_patientDbService.FindPatientContact(id) != null) {
 				return BadRequest("Patient already exists.");
@@ -200,7 +186,7 @@ namespace PatientService.Controllers
 		[ProducesResponseType(StatusCodes.Status409Conflict)]
 		[ProducesResponseType(StatusCodes.Status415UnsupportedMediaType)]
 		public IActionResult UpdatePatientContact(
-			Guid id,
+			[GuidNotEmpty] Guid id,
 			[FromBody] PatientContact patientContact)
 		{
 			// TODO: Finish this implementation
@@ -217,7 +203,7 @@ namespace PatientService.Controllers
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
-		public IActionResult DeletePatientContact(Guid id)
+		public IActionResult DeletePatientContact([GuidNotEmpty] Guid id)
 		{
 			// TODO: Finish this implementation
 			// TODO: Check if patient and patient contact are both valid
