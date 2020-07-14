@@ -28,6 +28,8 @@ namespace PatientService
 		{
 			services.AddHttpClient();
 			services.AddControllers();
+			services.AddSwaggerDocument();
+
 			services.AddDbContext<PatientDbContext>(options =>
 				options.UseNpgsql(Configuration.GetConnectionString("PatientDbContext")));
 
@@ -43,6 +45,7 @@ namespace PatientService
 					.AddDbContextCheck<PatientDbContext>();
 				break;
 			}
+
 
 			// TODO: Add health check monitoring.
 			// TODO: Implement custom health check publisher to log critical errors.
@@ -65,6 +68,9 @@ namespace PatientService
 
 			app.UseRouting();
 			app.UseAuthorization();
+
+			app.UseOpenApi();
+		    app.UseSwaggerUi3();
 
 			app.UseEndpoints(endpoints =>
 			{

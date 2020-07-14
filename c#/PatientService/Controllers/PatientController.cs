@@ -26,6 +26,9 @@ namespace PatientService.Controllers
 			_patientDbService = patientDbService;
 		}
 
+		/// <summary>
+		/// Finds a patient by Id.
+		/// </summary>
 		[HttpGet("{id}")]
 		[Produces("application/json")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
@@ -44,6 +47,9 @@ namespace PatientService.Controllers
 			return Ok(patient);
 		}
 
+		/// <summary>
+		/// Finds a patient by first name, last name, and date of birth.
+		/// </summary>
         [HttpGet]
 		[Produces("application/json")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
@@ -65,6 +71,9 @@ namespace PatientService.Controllers
 			return Ok(patient);
         }
 
+		/// <summary>
+		/// Adds a new patient to the database.
+		/// </summary>
 		[HttpPost]
 		[Consumes("application/json")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -83,6 +92,9 @@ namespace PatientService.Controllers
 			return NoContent();
 		}
 
+		/// <summary>
+		/// Updates an existing patient.
+		/// </summary>
 		[HttpPatch("{id}")]
 		[Consumes("application/json-patch+json")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -111,6 +123,9 @@ namespace PatientService.Controllers
 			return NoContent();
 		}
 
+		/// <summary>
+		/// Deletes an existing patient.
+		/// </summary>
 		[HttpDelete("{id}")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -130,6 +145,9 @@ namespace PatientService.Controllers
 			return NoContent();
 		}
 
+		/// <summary>
+		/// Finds patient contact information by patient Id.
+		/// </summary>
 		[HttpGet("{id}/contact")]
 		[Produces("application/json")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
@@ -153,6 +171,9 @@ namespace PatientService.Controllers
 			return Ok(patientContact);
         }
 
+		/// <summary>
+		/// Adds patient contact information  to the database.
+		/// </summary>
 		[HttpPost("{id}/contact")]
 		[Consumes("application/json")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -176,6 +197,9 @@ namespace PatientService.Controllers
 			return NoContent();
 		}
 
+		/// <summary>
+		/// Updates existing patient contact information.
+		/// </summary>
 		[HttpPatch("{id}/contact")]
 		[Consumes("application/json-patch+json")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -209,6 +233,9 @@ namespace PatientService.Controllers
 			return NoContent();
 		}
 
+		/// <summary>
+		/// Deletes existing patient contact information.
+		/// </summary>
 		[HttpDelete("{id}/contact")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
