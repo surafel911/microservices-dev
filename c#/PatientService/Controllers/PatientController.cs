@@ -26,8 +26,6 @@ namespace PatientService.Controllers
 			_patientDbService = patientDbService;
 		}
 
-		// TODO: Convert all failure action results to Problem().
-
 		[HttpGet("{id}")]
 		[Produces("application/json")]
 		[ProducesResponseType(StatusCodes.Status200OK)]
@@ -37,14 +35,10 @@ namespace PatientService.Controllers
 		{
 			Patient patient = null;
 
-			if (id == Guid.Empty) {
-				return BadRequest("Invalid guid.");
-			}
-
 			patient = _patientDbService.FindPatient(id);
-
 			if (patient == null) {
-				return NotFound();
+				return Problem("Patient not found.", default, StatusCodes.Status404NotFound,
+					"An error occurred.", "https://tools.ietf.org/html/rfc7231#section-6.5.1");
 			}
 
 			return Ok(patient);
@@ -64,7 +58,8 @@ namespace PatientService.Controllers
 
 			patient = _patientDbService.FindPatient(firstName, lastName, dateOfBirth);
 			if (patient == null) {
-				return NotFound("Patient not found.");
+				return Problem("Patient not found.", default, StatusCodes.Status404NotFound,
+					"An error occurred.", "https://tools.ietf.org/html/rfc7231#section-6.5.1");
 			}
 
 			return Ok(patient);
@@ -80,7 +75,7 @@ namespace PatientService.Controllers
 			if (_patientDbService.FindPatient(patient.FirstName,
 				patient.LastName, patient.DateOfBirth) != null) {
 				return Problem("Patient already exists.", default, StatusCodes.Status400BadRequest,
-					"One or more validation errors occurred.", "https://tools.ietf.org/html/rfc7231#section-6.5.1");
+					"An error occurred.", "https://tools.ietf.org/html/rfc7231#section-6.5.1");
 			}
 
 			_patientDbService.AddPatient(patient);
@@ -90,13 +85,12 @@ namespace PatientService.Controllers
 
 		[HttpPatch("{id}")]
 		[Consumes("application/json-patch+json")]
-		[Produces("application/json")]
-		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		[ProducesResponseType(StatusCodes.Status409Conflict)]
 		[ProducesResponseType(StatusCodes.Status415UnsupportedMediaType)]
-		public ActionResult<Patient> UpdatePatient(
+		public IActionResult UpdatePatient(
 			[GuidNotEmpty] Guid id,
 			[FromBody] Patient patientDTO)
 		{
@@ -104,7 +98,8 @@ namespace PatientService.Controllers
 
 			patient = _patientDbService.FindPatient(patientDTO.Id);
 			if (patient == null) {
-				return NotFound();
+				return Problem("Patient not found.", default, StatusCodes.Status404NotFound,
+					"An error occurred.", "https://tools.ietf.org/html/rfc7231#section-6.5.1");
 			}
 
 			// TODO: Do a patch of the patient
@@ -112,7 +107,7 @@ namespace PatientService.Controllers
 
 			_patientDbService.UpdatePatient(patient);
 
-			return Ok(patient);
+			return NoContent();
 		}
 
 		[HttpDelete("{id}")]
@@ -125,7 +120,8 @@ namespace PatientService.Controllers
 
 			patient = _patientDbService.FindPatient(id);
 			if (patient == null) {
-				return NotFound("Patient not found.");
+				return Problem("Patient not found.", default, StatusCodes.Status404NotFound,
+					"An error occurred.", "https://tools.ietf.org/html/rfc7231#section-6.5.1");
 			}
 
 			_patientDbService.RemovePatient(patient);
@@ -138,21 +134,19 @@ namespace PatientService.Controllers
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<PatientContact> GetPatientContact([GuidNotEmpty] Guid id)
+        public IActionResult GetPatientContact([GuidNotEmpty] Guid id)
         {
-			// TODO: Check if patient and patient contact are both valid
-
-			Patient patient = null;
 			PatientContact patientContact = null;
 
-			patient = _patientDbService.FindPatient(id);
-			if (patient == null) {
-				return BadRequest("");
+			if (_patientDbService.FindPatient(id) == null) {
+				return Problem("Patient not found.", default, StatusCodes.Status404NotFound,
+					"An error occurred.", "https://tools.ietf.org/html/rfc7231#section-6.5.1");
 			}
 
 			patientContact = _patientDbService.FindPatientContact(id);
 			if (patientContact == null) {
-				return NotFound("Patient contact info not found.");
+				return Problem("Patient contact not found.", default, StatusCodes.Status404NotFound,
+					"An error occurred.", "https://tools.ietf.org/html/rfc7231#section-6.5.1");
 			}
 
 			return Ok(patientContact);
@@ -166,11 +160,14 @@ namespace PatientService.Controllers
 			[GuidNotEmpty] Guid id,
 			[FromBody] PatientContact patientContact)
 		{
-			// TODO: Finish this implementation
-			// TODO: Check if patient and patient contact are both valid
+			if (_patientDbService.FindPatient(id) == null) {
+				return Problem("Patient not found.", default, StatusCodes.Status404NotFound,
+					"An error occurred.", "https://tools.ietf.org/html/rfc7231#section-6.5.1");
+			}
 
 			if (_patientDbService.FindPatientContact(id) != null) {
-				return BadRequest("Patient already exists.");
+				return Problem("Patient contact already exists.", default, StatusCodes.Status400BadRequest,
+					"An error occurred.", "https://tools.ietf.org/html/rfc7231#section-6.5.1");
 			}
 
 			_patientDbService.AddPatientContact(patientContact);
@@ -178,23 +175,34 @@ namespace PatientService.Controllers
 			return NoContent();
 		}
 
-		[HttpPut("{id}/contact")]
+		[HttpPatch("{id}/contact")]
 		[Consumes("application/json-patch+json")]
-		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		[ProducesResponseType(StatusCodes.Status409Conflict)]
 		[ProducesResponseType(StatusCodes.Status415UnsupportedMediaType)]
 		public IActionResult UpdatePatientContact(
 			[GuidNotEmpty] Guid id,
-			[FromBody] PatientContact patientContact)
+			[FromBody] PatientContact patientContactDTO)
 		{
-			// TODO: Finish this implementation
-			// TODO: Check if patient and patient contact are both valid
+			PatientContact patientContact = null;
 
-			if (id == Guid.Empty) {
-				return BadRequest("Empty guid.");
+			if (_patientDbService.FindPatient(id) == null) {
+				return Problem("Patient not found.", default, StatusCodes.Status404NotFound,
+					"An error occurred.", "https://tools.ietf.org/html/rfc7231#section-6.5.1");
 			}
+
+			patientContact = _patientDbService.FindPatientContact(id);
+			if (patientContact == null) {
+				return Problem("Patient contact not found.", default, StatusCodes.Status404NotFound,
+					"An error occurred.", "https://tools.ietf.org/html/rfc7231#section-6.5.1");
+			}
+
+			patientContact = patientContactDTO;
+			patientContact.PatientId = id;
+
+			_patientDbService.UpdatePatientContact(patientContact);
 
 			return NoContent();
 		}
@@ -205,18 +213,17 @@ namespace PatientService.Controllers
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public IActionResult DeletePatientContact([GuidNotEmpty] Guid id)
 		{
-			// TODO: Finish this implementation
-			// TODO: Check if patient and patient contact are both valid
-
 			PatientContact patientContact = null;
 
-			if (id == Guid.Empty) {
-				return BadRequest("Empty guid.");
+			if (_patientDbService.FindPatient(id) == null) {
+				return Problem("Patient not found.", default, StatusCodes.Status404NotFound,
+					"An error occurred.", "https://tools.ietf.org/html/rfc7231#section-6.5.1");
 			}
 
 			patientContact = _patientDbService.FindPatientContact(id);
 			if (patientContact == null) {
-				return NotFound("Patient contact info not found.");
+				return Problem("Patient contact not found.", default, StatusCodes.Status404NotFound,
+					"An error occurred.", "https://tools.ietf.org/html/rfc7231#section-6.5.1");
 			}
 
 			_patientDbService.RemovePatientContact(patientContact);
