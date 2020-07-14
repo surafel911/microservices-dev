@@ -16,11 +16,12 @@ namespace PatientService.Models
 
 		public override bool IsValid(object value)
 		{
-			// NOTE: NotEmpty doesn't necessarily mean required
+			// Guid can never be null.
 			if (value is null) {
 				return true;
 			}
 
+			// If not applied to a Guid, the attribute behaves passively
 			switch (value) {
 			case Guid guid:
 				return guid != Guid.Empty;
