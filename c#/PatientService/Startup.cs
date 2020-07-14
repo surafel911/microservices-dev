@@ -59,10 +59,11 @@ namespace PatientService
 				app.UseDeveloperExceptionPage();
 			} else {
 				app.UseExceptionHandler("/error");
+				app.UseHsts();
+	    		app.UseHttpsRedirection();
 			}
 
 			app.UseRouting();
-
 			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints =>
