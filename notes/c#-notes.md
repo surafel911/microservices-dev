@@ -17,7 +17,8 @@ the network and do the query locally.
 the validation attributes in `System.ComponentModel.DataAnnotations` for
 validation.
 2. You are able to use data annotations for validation checking for HTTP request sources.
-	* `[Required] [FromQuery] string firstName`
+	* E.g. `[Required] [FromQuery] string firstName`
+	* Required validation is not needed for `[FromBody]`.
 3. To validate whether a Guid isn't empty or a structure doesn't have default values, use this reference.
 	* https://andrewlock.net/creating-an-empty-guid-validation-attribute/
 4. The general convention for log levels:
