@@ -102,8 +102,9 @@ namespace PatientService.Controllers
 					"An error occurred.", "https://tools.ietf.org/html/rfc7231#section-6.5.1");
 			}
 
-			// TODO: Do a patch of the patient
+			// TODO: Implement patch.
 			patient = patientDTO;
+			patient.Id = id;
 
 			_patientDbService.UpdatePatient(patient);
 
@@ -199,6 +200,7 @@ namespace PatientService.Controllers
 					"An error occurred.", "https://tools.ietf.org/html/rfc7231#section-6.5.1");
 			}
 
+			// TODO: Implement patch.
 			patientContact = patientContactDTO;
 			patientContact.PatientId = id;
 

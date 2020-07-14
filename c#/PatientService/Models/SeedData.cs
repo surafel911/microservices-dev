@@ -15,7 +15,6 @@ namespace PatientService.Models
 {
     public static class SeedData
     {
-		// TODO: Have this be replaced by a config value
 		private static readonly int PatientCount = 100;
 
 		private static async Task<string> GetRandomPatientData(HttpClient httpClient)

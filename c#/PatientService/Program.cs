@@ -140,7 +140,7 @@ namespace PatientService
 				IWebHostEnvironment webHostEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
 
 				// TODO: Write environment name in log
-				logger.LogInformation("Enirovnment: " + webHostEnvironment.EnvironmentName);
+				logger.LogInformation("Environment: " + webHostEnvironment.EnvironmentName);
 
 				LogOrmConfig(logger, configuration);
 				EnsureDbCreated(logger, patientDbService, webHostEnvironment);
