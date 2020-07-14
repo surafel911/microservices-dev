@@ -12,11 +12,15 @@ the network and do the query locally.
 	* `context.Observations.Select(o => o.Id).AsEnumerable().Select(x => MySuperSmartMethod(x))`
 5. `IEnumerable` is an interface that defines one method `GetEnumerator` which returns an `IEnumerator` interface, this in turn allows readonly access to a collection. A collection that implements `IEnumerable` can be used with a foreach statement.
 
-### ASP.NET Core Notes
+### .NET Core Notes
 1. `DataType` annotations are only for display formatting, not validation. Use
 the validation attributes in `System.ComponentModel.DataAnnotations` for
 validation.
-2. The general convention for log levels:	
+2. You are able to use data annotations for validation checking for HTTP request sources.
+	* `[Required] [FromQuery] string firstName`
+3. To validate whether a Guid isn't empty or a structure doesn't have default values, use this reference.
+	* https://andrewlock.net/creating-an-empty-guid-validation-attribute/
+4. The general convention for log levels:
     * Trace - Only when I would be "tracing" the code and trying to find one part of a function specifically.
     * Debug - Information that is diagnostically helpful to people more than just developers (IT, sysadmins, etc.).
     * Info - Generally useful information to log (service start/stop, configuration assumptions, etc). Info I want to always have available but usually don't care about under normal circumstances. This is my out-of-the-box config level.
@@ -28,3 +32,5 @@ validation.
 ### ORM/EF Core Notes
 1. Here is the fluent API code for owned classes.
 	* `modelBuilder.Entity<PatientContact>().OwnsOne(e => e.Address).WithOwner(e => e.PatientContact)`
+2. Use this package to add database probes for a wide variety of DBMS.
+	* https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks
