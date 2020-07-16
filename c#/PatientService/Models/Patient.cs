@@ -24,6 +24,7 @@ namespace PatientService.Models
 
 		[Required]
 		[StringLength(4)]
+		[RegularExpression("^[0-9]+$")]
 		public string LastFourOfSSN { get; set; }
 
 		[Required]

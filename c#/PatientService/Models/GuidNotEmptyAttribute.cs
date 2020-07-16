@@ -8,7 +8,7 @@ namespace PatientService.Models
 		AllowMultiple = false)]
 	public class GuidNotEmptyAttribute : ValidationAttribute
 	{
-		public const string DefaultErrorMessage = "The {0} field must not be empty";
+		public const string DefaultErrorMessage = "The {0} field must not be empty Guid.";
 
 		public GuidNotEmptyAttribute() : base(DefaultErrorMessage)
 		{
