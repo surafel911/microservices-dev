@@ -1,8 +1,9 @@
 using System;
-
+using Microsoft.AspNetCore.Http;
 using Xunit;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -18,12 +19,10 @@ namespace PatientServiceTest
     public class PatientServiceUnitTest : IDisposable
     {
 		private readonly Patient _patient;
-		private readonly ILogger<PatientController> _mockLogger;
-		private readonly IPatientDbService _mockPatientDbService;
-		private readonly IHostApplicationLifetime _mockHostApplicationLifetime;
 		private readonly PatientController _patientController;
+		private readonly MockPatientDbService _mockPatientDbService;
 
-		public PatientServiceTest()
+		public PatientServiceUnitTest()
 		{
 			// Setup
 			_patient = new Patient
@@ -35,36 +34,23 @@ namespace PatientServiceTest
 				DateOfBirth = DateTime.Now.AddDays(-7),
 			};
 
-			_mockLogger = new NullLogger<PatientController>();
 			_mockPatientDbService = new MockPatientDbService();
-			_mockHostApplicationLifetime = new MockHostApplicationLifetime();
-			
 			_mockPatientDbService.AddPatient(_patient);
-			
+
 			_patientController = new PatientController(
-				_mockLogger,
-				_mockPatientDbService,
-				_mockHostApplicationLifetime
+				new NullLogger<PatientController>(),
+				(IPatientDbService)_mockPatientDbService
 			);
+
+			_patientController.ProblemDetailsFactory = new MockProblemDetailsFactory();
 		}
-	
+
 		public void Dispose()
 		{
 		}
 
 		// TODO: Add tests to make sure that the error strings are not empty.
 		// TODO: Add tests that look into mock db and check if patients are really there.
-
-		[Fact]
-		public void TestGetHealth()
-		{
-			// Act
-			IActionResult result = _patientController.GetHealth();
-
-			// Assert
-			Assert.IsType<OkObjectResult>(result);
-			Assert.IsType<string>(((OkObjectResult)result).Value);
-		}
 
 		[Fact]
 		public void TestGetPatientFromIdValidId()
@@ -78,17 +64,6 @@ namespace PatientServiceTest
 		}
 
 		[Fact]
-		public void TestGetPatientFromIdEmptyId()
-		{
-			// Act
-			IActionResult result = _patientController.GetPatient(Guid.Empty);
-
-			// Assert
-			Assert.IsType<BadRequestObjectResult>(result);
-			Assert.IsType<string>(((BadRequestObjectResult)result).Value);
-		}
-
-		[Fact]
 		public void TestGetPatientFromIdPatientNotFound()
 
 		{
@@ -96,8 +71,10 @@ namespace PatientServiceTest
 			IActionResult result = _patientController.GetPatient(Guid.NewGuid());
 
 			// Assert
-			Assert.IsType<NotFoundObjectResult>(result);
-			Assert.IsType<string>(((NotFoundObjectResult)result).Value);
+			Assert.IsType<ObjectResult>(result);
+			Assert.NotNull(((ObjectResult)result).Value);
+			Assert.IsType<ProblemDetails>(((ObjectResult)result).Value);
+			Assert.Equal(StatusCodes.Status404NotFound, ((ObjectResult)result).StatusCode);
 		}
 
         [Fact]
@@ -112,20 +89,6 @@ namespace PatientServiceTest
 			Assert.Equal(_patient, ((OkObjectResult)result).Value);
         }
 
-		[Theory]
-		[InlineData("")]
-		[InlineData(null)]
-		public void TestGetPatientFromQueryNullQuery(string value)
-		{
-			// Act
-			IActionResult result = _patientController.GetPatient(
-				value, value, DateTime.Now);
-
-			// Assert
-			Assert.IsType<BadRequestObjectResult>(result);
-			Assert.IsType<string>(((BadRequestObjectResult)result).Value);
-		}
-
 		[Fact]
 		public void TestGetPatientFromQueryPatientNotFound()
 		{
@@ -134,8 +97,9 @@ namespace PatientServiceTest
 				_patient.FirstName, _patient.LastName, DateTime.Now);
 
 			// Assert
-			Assert.IsType<NotFoundObjectResult>(result);
-			Assert.IsType<string>(((NotFoundObjectResult)result).Value);
+			Assert.IsType<ObjectResult>(result);
+			Assert.IsType<ProblemDetails>(((ObjectResult)result).Value);
+			Assert.Equal(StatusCodes.Status404NotFound, ((ObjectResult)result).StatusCode);
 		}
 
 		[Fact]
@@ -151,17 +115,7 @@ namespace PatientServiceTest
 
 			// Assert
 			Assert.IsType<NoContentResult>(result);
-		} 
-
-		[Fact]
-		public void TestCreatePatientNullPatient()
-		{
-			// Act
-			IActionResult result = _patientController.CreatePatient(null);
-
-			// Assert
-			Assert.IsType<BadRequestObjectResult>(result);
-			Assert.IsType<string>(((BadRequestObjectResult)result).Value);
+			Assert.Contains(_mockPatientDbService.PatientList, patient => patient == _patient);
 		}
 
 		[Fact]
@@ -171,59 +125,80 @@ namespace PatientServiceTest
 			IActionResult result = _patientController.CreatePatient(_patient);
 
 			// Assert
-			Assert.IsType<BadRequestObjectResult>(result);
-			Assert.IsType<string>(((BadRequestObjectResult)result).Value);
+			Assert.IsType<ObjectResult>(result);
+			Assert.IsType<ProblemDetails>(((ObjectResult)result).Value);
+			Assert.Equal(StatusCodes.Status400BadRequest, ((ObjectResult)result).StatusCode);
 		}
 
-		[Theory]
-		[InlineData("")]
-		[InlineData(null)]
-		public void TestCreatePatientInvalidFirstName(string value)
+		[Fact]
+		public void TestUpdatePatientValidPatient()
 		{
 			// Act
-			IActionResult result = _patientController.CreatePatient(new Patient {
-				FirstName = value,
-				LastName = "Johnson",
-				LastFourOfSSN = "5678",
-				DateOfBirth = DateTime.Now
-			});
+			string firstName = "Jacob", lastName = "Dunham";
+			Patient patient = _patient;
+
+			patient.FirstName = firstName;
+			patient.LastName = lastName;
+
+			IActionResult result = _patientController.UpdatePatient(patient.Id, patient);
 
 			// Assert
-			Assert.IsType<BadRequestResult>(result);
+			patient = _mockPatientDbService.PatientList.Find(p => p.Id == patient.Id);
+
+			Assert.IsType<NoContentResult>(result);
+			Assert.Equal(patient.FirstName, firstName);
+			Assert.Equal(patient.LastName, lastName);
 		}
 
-		[Theory]
-		[InlineData("")]
-		[InlineData(null)]
-		public void TestCreatePatientInvalidLastName(string value)
+		[Fact]
+		public void TestUpdatePatientInvalidPatient()
 		{
 			// Act
-			IActionResult result = _patientController.CreatePatient(new Patient {
-				FirstName = "Adam",
-				LastName = value,
-				LastFourOfSSN = "5678",
-				DateOfBirth = DateTime.Now
-			});
+			Patient patient = new Patient();
+
+			patient.Id = new Guid();
+			patient.FirstName = "Jacob";
+			patient.LastName = "Dunham";
+			patient.DateOfBirth = _patient.DateOfBirth;
+			patient.LastFourOfSSN = _patient.LastFourOfSSN;
+
+			IActionResult result = _patientController.UpdatePatient(patient.Id, patient);
 
 			// Assert
-			Assert.IsType<BadRequestResult>(result);
+			Assert.IsType<ObjectResult>(result);
+			Assert.IsType<ProblemDetails>(((ObjectResult)result).Value);
+			Assert.Equal(StatusCodes.Status404NotFound, ((ObjectResult)result).StatusCode);
 		}
 
-		[Theory]
-		[InlineData("")]
-		[InlineData(null)]
-		public void TestCreatePatientInvalidLastFourOfSSN(string value)
+		[Fact]
+		public void TestDeletePatientValidPatient()
 		{
 			// Act
-			IActionResult result = _patientController.CreatePatient(new Patient {
-				FirstName = "Adam",
-				LastName = "Johnson",
-				LastFourOfSSN = value,
-				DateOfBirth = DateTime.Now
-			});
+			IActionResult result = _patientController.DeletePatient(_patient.Id);
 
 			// Assert
-			Assert.IsType<BadRequestResult>(result);
+			Assert.IsType<NoContentResult>(result);
+			Assert.DoesNotContain(_mockPatientDbService.PatientList, patient => patient == _patient);
+		}
+
+		[Fact]
+		public void TestDeletePatientDoesNotExist()
+		{
+			// Act
+			Patient patient = new Patient();
+
+			patient.Id = new Guid();
+			patient.FirstName = _patient.FirstName;
+			patient.LastName = _patient.LastName;
+			patient.DateOfBirth = _patient.DateOfBirth;
+			patient.LastFourOfSSN = _patient.LastFourOfSSN;
+
+			IActionResult result = _patientController.DeletePatient(patient.Id);
+
+			// Assert
+			Assert.IsType<ObjectResult>(result);
+			Assert.IsType<ProblemDetails>(((ObjectResult)result).Value);
+			Assert.Equal(StatusCodes.Status404NotFound, ((ObjectResult)result).StatusCode);
 		}
     }
 }

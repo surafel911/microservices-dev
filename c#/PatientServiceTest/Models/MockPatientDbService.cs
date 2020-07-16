@@ -9,13 +9,23 @@ namespace PatientServiceTest.Models
 {
 	public class MockPatientDbService : IPatientDbService
 	{
-		private IList<Patient> patientList;
-		private IList<PatientContact> patientContactList;
+		private List<Patient> _patientList;
+		private List<PatientContact> _patientContactList;
+
+		public List<Patient> PatientList
+		{
+			get => _patientList;
+		}
+
+		public List<PatientContact> PatientContactList
+		{
+			get => _patientContactList;
+		}
 
 		public MockPatientDbService()
 		{
-			patientList = new List<Patient>();
-			patientContactList = new List<PatientContact>();
+			_patientList = new List<Patient>();
+			_patientContactList = new List<PatientContact>();
 		}
 
 		public bool CanConnect()
@@ -38,17 +48,18 @@ namespace PatientServiceTest.Models
 
 		public void AddPatient(Patient patient)
 		{
-			patientList.Add(patient);
+			_patientList.Add(patient);
 		}
 
 		public void AddPatientRange(IEnumerable<Patient> patients)
 		{
+			_patientList.AddRange(patients);
 		}
 
 		public Patient FindPatient(Guid id)
 		{
 			try {
-				return patientList.AsEnumerable().Where(patient => patient.Id == id).First();
+				return _patientList.Find(patient => patient.Id == id);
 			} catch {
 				return null;
 			}
@@ -57,10 +68,10 @@ namespace PatientServiceTest.Models
 		public Patient FindPatient(string firstName, string lastName, DateTime dateOfBirth)
 		{
 			try {
-				return patientList.AsEnumerable().Where(patient =>
+				return _patientList.Find(patient =>
 					patient.FirstName == firstName &&
 					patient.LastName == lastName &&
-					patient.DateOfBirth == dateOfBirth).First();
+					patient.DateOfBirth == dateOfBirth);
 			} catch {
 				return null;
 			}
@@ -68,16 +79,26 @@ namespace PatientServiceTest.Models
 
 		public void UpdatePatient(Patient patient)
 		{
+			int index = _patientList.FindIndex(p => p.Id == patient.Id);
+
+			if (index == -1) {
+				throw new InvalidOperationException();
+			}
+
+			_patientList[index].FirstName = patient.FirstName;
+			_patientList[index].LastName = patient.LastName;
+			_patientList[index].LastFourOfSSN = patient.LastFourOfSSN;
 		}
 
 		public void RemovePatient(Patient patient)
 		{
+			_patientList.Remove(patient);
 		}
 
 		public void AddPatientContact(PatientContact patientContact)
 		{
 		}
-		
+
 		public void AddPatientContactRange(IEnumerable<PatientContact> patientContacts)
 		{
 		}

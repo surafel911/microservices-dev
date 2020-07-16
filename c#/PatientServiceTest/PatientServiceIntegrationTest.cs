@@ -17,11 +17,11 @@ using PatientServiceTest.Models;
 namespace PatientServiceTest
 {
 	public class PatientServiceIntegrationTest
-		: IClassFixture<WebApplicationFactory<RazorPagesProject.Startup>>
+		: IClassFixture<WebApplicationFactory<PatientService.Startup>>
 	{
 		private readonly WebApplicationFactory<PatientService.Startup> _factory;
 
-		public PatientServiceIntegrationTest(WebApplicationFactory<RazorPagesProject.Startup> factory)
+		public PatientServiceIntegrationTest(WebApplicationFactory<PatientService.Startup> factory)
 		{
 			_factory = factory;
 		}
