@@ -3,16 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PatientService.Models
 {
-    public class PatientContact
+    public class PatientContactDTO
     {
-        [Key]
-        [Required]
-		[GuidNotEmpty]
-        public Guid PatientId { get; set; }
-
-        [Required]
-        public Patient Patient { get; set; }
-
         [Required]
         [Phone]
 		[StringLength(16)]

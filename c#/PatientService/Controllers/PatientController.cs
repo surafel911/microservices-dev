@@ -45,11 +45,7 @@ namespace PatientService.Controllers
 			Patient patient = null;
 
 			patient = _patientDbService.FindPatient(id);
-			if (patient == null) {
-				return ReturnProblem("Patient not found.", StatusCodes.Status404NotFound);
-			}
-
-			return Ok(patient);
+			return patient == null ? ReturnProblem("Patient not found.", StatusCodes.Status404NotFound) : Ok(patient);
 		}
 
 		/// <summary>
@@ -68,11 +64,7 @@ namespace PatientService.Controllers
 			Patient patient = null;
 
 			patient = _patientDbService.FindPatient(firstName, lastName, dateOfBirth);
-			if (patient == null) {
-				return ReturnProblem("Patient not found.", StatusCodes.Status404NotFound);
-			}
-
-			return Ok(patient);
+			return patient == null ? ReturnProblem("Patient not found.", StatusCodes.Status404NotFound) : Ok(patient);
         }
 
 		/// <summary>
@@ -82,6 +74,7 @@ namespace PatientService.Controllers
 		[Consumes("application/json")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType((StatusCodes.Status415UnsupportedMediaType))]
 		public IActionResult CreatePatient(
 			[FromBody] Patient patient)
 		{
@@ -99,7 +92,7 @@ namespace PatientService.Controllers
 		/// Updates an existing patient.
 		/// </summary>
 		[HttpPatch("{id}")]
-		[Consumes("application/json-patch+json")]
+		[Consumes("application/json")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -107,7 +100,7 @@ namespace PatientService.Controllers
 		[ProducesResponseType(StatusCodes.Status415UnsupportedMediaType)]
 		public IActionResult UpdatePatient(
 			[GuidNotEmpty] Guid id,
-			[FromBody] Patient patientDTO)
+			[FromBody] PatientDTO patientDTO)
 		{
 			Patient patient = null;
 
@@ -116,9 +109,11 @@ namespace PatientService.Controllers
 				return ReturnProblem("Patient not found.", StatusCodes.Status404NotFound);
 			}
 
-			// TODO: Implement patch.
-			patient = patientDTO;
 			patient.Id = id;
+			patient.FirstName = patientDTO.FirstName;
+			patient.LastName = patientDTO.LastName;
+			patient.DateOfBirth = patientDTO.DateOfBirth;
+			patient.LastFourOfSSN = patientDTO.LastFourOfSSN;
 
 			_patientDbService.UpdatePatient(patient);
 
@@ -163,11 +158,9 @@ namespace PatientService.Controllers
 			}
 
 			patientContact = _patientDbService.FindPatientContact(id);
-			if (patientContact == null) {
-				return ReturnProblem("Patient contact not found.", StatusCodes.Status404NotFound);
-			}
-
-			return Ok(patientContact);
+			return patientContact == null
+				? ReturnProblem("Patient contact not found.", StatusCodes.Status404NotFound)
+				: Ok(patientContact);
         }
 
 		/// <summary>
@@ -177,6 +170,7 @@ namespace PatientService.Controllers
 		[Consumes("application/json")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public IActionResult CreatePatientContact(
 			[GuidNotEmpty] Guid id,
 			[FromBody] PatientContact patientContact)
@@ -198,7 +192,7 @@ namespace PatientService.Controllers
 		/// Updates existing patient contact information.
 		/// </summary>
 		[HttpPatch("{id}/contact")]
-		[Consumes("application/json-patch+json")]
+		[Consumes("application/json")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -206,11 +200,13 @@ namespace PatientService.Controllers
 		[ProducesResponseType(StatusCodes.Status415UnsupportedMediaType)]
 		public IActionResult UpdatePatientContact(
 			[GuidNotEmpty] Guid id,
-			[FromBody] PatientContact patientContactDTO)
+			[FromBody] PatientContactDTO patientContactDTO)
 		{
+			Patient patient = null;
 			PatientContact patientContact = null;
 
-			if (_patientDbService.FindPatient(id) == null) {
+			patient = _patientDbService.FindPatient(id);
+			if (patient == null) {
 				return ReturnProblem("Patient not found.", StatusCodes.Status404NotFound);
 			}
 
@@ -219,9 +215,10 @@ namespace PatientService.Controllers
 				return ReturnProblem("Patient contact not found.", StatusCodes.Status404NotFound);
 			}
 
-			// TODO: Implement patch.
-			patientContact = patientContactDTO;
 			patientContact.PatientId = id;
+			patientContact.Patient = patient;
+			patientContact.PhoneNumber = patientContactDTO.PhoneNumber;
+			patientContact.EmailAddress = patientContactDTO.EmailAddress;
 
 			_patientDbService.UpdatePatientContact(patientContact);
 
