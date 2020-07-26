@@ -65,6 +65,8 @@ namespace PatientService.Services
 
 		public void AddPatient(Patient patient)
 		{
+			patient.DateOfBirth = patient.DateOfBirth.Date;
+			
 			try {
 				_patientDbContext.Patients.Add(patient);
 				_patientDbContext.SaveChanges();
@@ -76,6 +78,10 @@ namespace PatientService.Services
 
 		public void AddPatientRange(IEnumerable<Patient> patients)
 		{
+			foreach (Patient patient in patients) {
+				patient.DateOfBirth = patient.DateOfBirth.Date;
+			}
+			
 			try {
 				_patientDbContext.Patients.AddRange(patients);
 				_patientDbContext.SaveChanges();
