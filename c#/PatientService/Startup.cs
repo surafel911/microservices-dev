@@ -46,18 +46,12 @@ namespace PatientService
 				break;
 			}
 
-
 			// TODO: Add health check monitoring.
 			// TODO: Implement custom health check publisher to log critical errors.
 		}
 
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
-			ILogger<Startup> logger;
-
-			logger = app.ApplicationServices.CreateScope().ServiceProvider
-				.GetRequiredService<ILogger<Startup>>();
-
 			if (env.IsDevelopment()) {
 				app.UseDeveloperExceptionPage();
 			} else {
