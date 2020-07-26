@@ -20,7 +20,7 @@ namespace PatientService.Services
 		void AddPatientContact(PatientContact patientContact);
 		void AddPatientContactRange(IEnumerable<PatientContact> patientContacts);
 		PatientContact FindPatientContact(Guid patientId);
-		void RemovePatientContact(PatientContact patientContact);
 		void UpdatePatientContact(PatientContact patientContact);
+		void RemovePatientContact(PatientContact patientContact);
 	}
 }

@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using PatientService.Data;
@@ -70,6 +70,9 @@ namespace PatientService.Services
 			try {
 				_patientDbContext.Patients.Add(patient);
 				_patientDbContext.SaveChanges();
+			} catch (DbUpdateConcurrencyException e) {
+				_logger.LogError(e, "A database concurrency error occured.");
+				throw;
 			} catch (Exception e) {
 				_logger.LogError(e, "An error occured in the database service.");
 				throw;
@@ -85,7 +88,10 @@ namespace PatientService.Services
 			try {
 				_patientDbContext.Patients.AddRange(patients);
 				_patientDbContext.SaveChanges();
-			} catch (Exception e) {
+			} catch (DbUpdateConcurrencyException e) {
+				_logger.LogError(e, "A database concurrency error occured.");
+				throw;
+			}  catch (Exception e) {
 				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
@@ -95,7 +101,10 @@ namespace PatientService.Services
 		{
 			try {
 				return _patientDbContext.Patients.Find(id);
-			} catch (Exception e) {
+			} catch (DbUpdateConcurrencyException e) {
+				_logger.LogError(e, "A database concurrency error occured.");
+				throw;
+			}  catch (Exception e) {
 				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
@@ -115,7 +124,10 @@ namespace PatientService.Services
 				} 
 				
 				return patientQueryable.First();
-			} catch (Exception e) {
+			} catch (DbUpdateConcurrencyException e) {
+				_logger.LogError(e, "A database concurrency error occured.");
+				throw;
+			}  catch (Exception e) {
 				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
@@ -125,7 +137,10 @@ namespace PatientService.Services
 		{
 			try {
 				_patientDbContext.Patients.Update(patient);
-			} catch (Exception e) {
+			} catch (DbUpdateConcurrencyException e) {
+				_logger.LogError(e, "A database concurrency error occured.");
+				throw;
+			}  catch (Exception e) {
 				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
@@ -136,7 +151,10 @@ namespace PatientService.Services
 			try {
 				_patientDbContext.Patients.Remove(patient);
 				_patientDbContext.SaveChanges();
-			} catch (Exception e) {
+			} catch (DbUpdateConcurrencyException e) {
+				_logger.LogError(e, "A database concurrency error occured.");
+				throw;
+			}  catch (Exception e) {
 				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
@@ -147,7 +165,10 @@ namespace PatientService.Services
 			try {
 				_patientDbContext.PatientContacts.Add(patientContact);
 				_patientDbContext.SaveChanges();
-			} catch (Exception e) {
+			} catch (DbUpdateConcurrencyException e) {
+				_logger.LogError(e, "A database concurrency error occured.");
+				throw;
+			}  catch (Exception e) {
 				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
@@ -158,7 +179,10 @@ namespace PatientService.Services
 			try {
 				_patientDbContext.PatientContacts.AddRange(patientContacts);
 				_patientDbContext.SaveChanges();
-			} catch (Exception e) {
+			} catch (DbUpdateConcurrencyException e) {
+				_logger.LogError(e, "A database concurrency error occured.");
+				throw;
+			}  catch (Exception e) {
 				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
@@ -168,18 +192,10 @@ namespace PatientService.Services
 		{
 			try {
 				return _patientDbContext.PatientContacts.Find(patientId);
-			} catch (Exception e) {
-				_logger.LogError(e, "An error occured in the database service.");
+			} catch (DbUpdateConcurrencyException e) {
+				_logger.LogError(e, "A database concurrency error occured.");
 				throw;
-			}
-		}
-
-		public void RemovePatientContact(PatientContact patientContact)
-		{
-			try {
-				_patientDbContext.PatientContacts.Remove(patientContact);
-				_patientDbContext.SaveChanges();
-			} catch (Exception e) {
+			}  catch (Exception e) {
 				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
@@ -190,7 +206,24 @@ namespace PatientService.Services
 			try {
 				_patientDbContext.PatientContacts.Update(patientContact);
 				_patientDbContext.SaveChanges();
-			} catch (Exception e) {
+			} catch (DbUpdateConcurrencyException e) {
+				_logger.LogError(e, "A database concurrency error occured.");
+				throw;
+			}  catch (Exception e) {
+				_logger.LogError(e, "An error occured in the database service.");
+				throw;
+			}
+		}
+
+		public void RemovePatientContact(PatientContact patientContact)
+		{
+			try {
+				_patientDbContext.PatientContacts.Remove(patientContact);
+				_patientDbContext.SaveChanges();
+			} catch (DbUpdateConcurrencyException e) {
+				_logger.LogError(e, "A database concurrency error occured.");
+				throw;
+			}  catch (Exception e) {
 				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}

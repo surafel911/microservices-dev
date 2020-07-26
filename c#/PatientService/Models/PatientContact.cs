@@ -10,9 +10,10 @@ namespace PatientService.Models
 		[GuidNotEmpty]
         public Guid PatientId { get; set; }
 
+        // Navagation Property
         [Required]
         public Patient Patient { get; set; }
-
+    
         [Required]
         [Phone]
 		[StringLength(16)]
@@ -23,5 +24,9 @@ namespace PatientService.Models
 		[StringLength(40)]
         [DataType(DataType.EmailAddress)]
         public string EmailAddress { get; set; }
+        
+        // Concurrency Check
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
     }
 }

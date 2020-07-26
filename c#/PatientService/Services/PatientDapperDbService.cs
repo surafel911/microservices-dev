@@ -18,6 +18,12 @@ namespace PatientService.Services
 
 		public bool CanConnect()
 		{
+			try {
+				
+			} catch (Exception e) {
+				
+			}
+			
 			throw new NotImplementedException();
 		}
 
@@ -81,12 +87,12 @@ namespace PatientService.Services
 			throw new NotImplementedException();
 		}
 
-		public void RemovePatientContact(PatientContact patientContact)
+		public void UpdatePatientContact(PatientContact patientContact)
 		{
 			throw new NotImplementedException();
 		}
 
-		public void UpdatePatientContact(PatientContact patientContact)
+		public void RemovePatientContact(PatientContact patientContact)
 		{
 			throw new NotImplementedException();
 		}
