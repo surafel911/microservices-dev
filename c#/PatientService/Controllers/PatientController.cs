@@ -96,8 +96,6 @@ namespace PatientService.Controllers
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
-		[ProducesResponseType(StatusCodes.Status409Conflict)]
-		[ProducesResponseType(StatusCodes.Status415UnsupportedMediaType)]
 		public IActionResult UpdatePatient(
 			[GuidNotEmpty] Guid id,
 			[FromBody] PatientDTO patientDTO)
@@ -196,8 +194,6 @@ namespace PatientService.Controllers
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
-		[ProducesResponseType(StatusCodes.Status409Conflict)]
-		[ProducesResponseType(StatusCodes.Status415UnsupportedMediaType)]
 		public IActionResult UpdatePatientContact(
 			[GuidNotEmpty] Guid id,
 			[FromBody] PatientContactDTO patientContactDTO)
