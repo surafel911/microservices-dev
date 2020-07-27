@@ -97,23 +97,39 @@ namespace PatientServiceTest.Models
 
 		public void AddPatientContact(PatientContact patientContact)
 		{
+			_patientContactList.Add(patientContact);
 		}
 
 		public void AddPatientContactRange(IEnumerable<PatientContact> patientContacts)
 		{
+			_patientContactList.AddRange(patientContacts);
 		}
 
-		public PatientContact FindPatientContact(Guid parentId)
+		public PatientContact FindPatientContact(Guid patientId)
 		{
-			return null;
-		}
-
-		public void RemovePatientContact(PatientContact patientContact)
-		{
+			try {
+				return _patientContactList.Find(patient => patient.PatientId == patientId);
+			} catch {
+				return null;
+			}
 		}
 
 		public void UpdatePatientContact(PatientContact patientContact)
 		{
+			int index = _patientContactList.FindIndex(pc => pc.Patient == patientContact.Patient &&
+				pc.PatientId == patientContact.PatientId);
+
+			if (index == -1) {
+				throw new InvalidOperationException();
+			}
+
+			_patientContactList[index].PhoneNumber = patientContact.PhoneNumber;
+			_patientContactList[index].EmailAddress = patientContact.EmailAddress;
+		}
+
+		public void RemovePatientContact(PatientContact patientContact)
+		{
+			_patientContactList.Remove(patientContact);
 		}
 	}
 }
