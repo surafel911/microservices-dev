@@ -28,6 +28,9 @@ validation.
     * Warn - Anything that can potentially cause application oddities, but for which I am automatically recovering. (Such as switching from a primary to backup server, retrying an operation, missing secondary data, etc.)
     * Error - Any error which is fatal to the operation, but not the service or application (can't open a required file, missing data, etc.). These errors will force user (administrator, or direct user) intervention. These are usually reserved (in my apps) for incorrect connection strings, missing services, etc.
     * Critical - Any error that is forcing a shutdown of the service or application to prevent data loss (or further data loss). I reserve these only for the most heinous errors and situations where there is guaranteed to have been data corruption or loss.
+5. Using the `StringBuilder` class to create strings rather than string concatenation is more efficient
+    * https://docs.microsoft.com/en-us/troubleshoot/dotnet/csharp/string-concatenation
+    * https://dotnetcoretutorials.com/2020/02/06/performance-of-string-concatenation-in-c/
 
 
 ### ORM/EF Core Notes
