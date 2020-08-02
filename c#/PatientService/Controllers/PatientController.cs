@@ -32,6 +32,8 @@ namespace PatientService.Controllers
 			_patientDbService = patientDbService;
 		}
 
+        // TODO: Delete patient contact if patient is deleted
+
 		/// <summary>
 		/// Finds a patient by Id.
 		/// </summary>
