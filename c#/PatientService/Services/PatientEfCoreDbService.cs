@@ -47,7 +47,10 @@ namespace PatientService.Services
 		{
 			try {
 				_patientDbContext.Database.EnsureDeleted();
-			} catch (Exception e) {
+			} catch (DbUpdateConcurrencyException e) {
+				_logger.LogError(e, "A database concurrency error occured.");
+				throw;
+			}  catch (Exception e) {
 				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
@@ -57,7 +60,10 @@ namespace PatientService.Services
 		{
 			try {
 				return _patientDbContext.Patients.Any();
-			} catch (Exception e) {
+			} catch (DbUpdateConcurrencyException e) {
+				_logger.LogError(e, "A database concurrency error occured.");
+				throw;
+			}  catch (Exception e) {
 				_logger.LogError(e, "An error occured in the database service.");
 				throw;
 			}
@@ -81,12 +87,14 @@ namespace PatientService.Services
 
 		public void AddPatientRange(IEnumerable<Patient> patients)
 		{
-			foreach (Patient patient in patients) {
+			Patient[] enumerable = patients as Patient[] ?? patients.ToArray();
+			
+			foreach (Patient patient in enumerable) {
 				patient.DateOfBirth = patient.DateOfBirth.Date;
 			}
 			
 			try {
-				_patientDbContext.Patients.AddRange(patients);
+				_patientDbContext.Patients.AddRange(enumerable);
 				_patientDbContext.SaveChanges();
 			} catch (DbUpdateConcurrencyException e) {
 				_logger.LogError(e, "A database concurrency error occured.");

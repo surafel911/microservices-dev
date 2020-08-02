@@ -1,16 +1,12 @@
-using System;
-
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-
-using Microsoft.EntityFrameworkCore;
-
+using Microsoft.Extensions.Hosting;
 using PatientService.Data;
+using PatientService.Models;
 using PatientService.Services;
 
 namespace PatientService
@@ -18,6 +14,33 @@ namespace PatientService
 	public class Startup
 	{
 		public IConfiguration Configuration { get; }
+
+		private void SetupDapperOrm(ref IServiceCollection services)
+		{
+			IDictionary<DbConnectionName, string> connectionDictionary = new Dictionary<DbConnectionName, string>
+			{
+				{DbConnectionName.DefaultDbName, Configuration.GetConnectionString("DefaultDbContext")},
+				{DbConnectionName.PatientDbName, Configuration.GetConnectionString("PatientDbContext")}
+			};
+			
+			services.AddSingleton(connectionDictionary);
+			services.AddTransient<IDbConnectionFactory, DapperDbConnectionFactory>();
+
+			services.AddTransient<IDefaultDbService, DefaultDbService>();
+			services.AddTransient<IPatientDbCommandService, PatientDbCommandService>();
+			
+			services.AddScoped<IDefaultDbService, DefaultDbService>();
+			services.AddScoped<IPatientDbService, PatientDapperDbService>();
+			services.AddHealthChecks().AddNpgSql(Configuration.GetConnectionString("PatientDbContext"));
+		}
+
+		private void SetupEfCoreOrm(ref IServiceCollection services)
+		{
+			services.AddDbContext<PatientDbContext>(options =>
+				options.UseNpgsql(Configuration.GetConnectionString("PatientDbContext")));
+			services.AddScoped<IPatientDbService, PatientEfCoreDbService>();
+			services.AddHealthChecks().AddDbContextCheck<PatientDbContext>();
+		}
 
 		public Startup(IConfiguration configuration)
 		{
@@ -30,19 +53,12 @@ namespace PatientService
 			services.AddControllers();
 			services.AddSwaggerDocument();
 
-			services.AddDbContext<PatientDbContext>(options =>
-				options.UseNpgsql(Configuration.GetConnectionString("PatientDbContext")));
-
-			switch (ConfigurationBinder.GetValue<int>(Configuration, "PATIENTSERVICE_ORM")) {
+			switch (Configuration.GetValue<int>("PATIENTSERVICE_ORM")) {
 			case 2:
-				services.AddScoped<IPatientDbService, PatientDapperDbService>();
-				services.AddHealthChecks()
-					.AddNpgSql(Configuration.GetConnectionString("PatientDbContext"));
+				SetupDapperOrm(ref services);
 				break;
 			default:
-				services.AddScoped<IPatientDbService, PatientEfCoreDbService>();
-				services.AddHealthChecks()
-					.AddDbContextCheck<PatientDbContext>();
+				SetupEfCoreOrm(ref services);
 				break;
 			}
 

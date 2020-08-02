@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.ComponentModel.DataAnnotations;
 
 namespace PatientService.Models
@@ -28,5 +29,17 @@ namespace PatientService.Models
         // Concurrency Check
         [Timestamp]
         public byte[] RowVersion { get; set; }
+
+        public override string ToString()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            stringBuilder.Append(PatientId + ", ");
+            stringBuilder.Append(PhoneNumber + ", ");
+            stringBuilder.Append(EmailAddress + ", ");
+            stringBuilder.Append(RowVersion);
+
+            return stringBuilder.ToString();
+        }
     }
 }
