@@ -9,6 +9,7 @@ namespace PatientService.Services
 {
     public interface IPatientDbCommandService
     {
+        CommandDefinition GetUUIDModuleCommand();
         CommandDefinition GetCanConnectCommand();
         CommandDefinition GetCreatePatientCommand();
         CommandDefinition GetAnyPatientCommand();
@@ -19,10 +20,10 @@ namespace PatientService.Services
         CommandDefinition GetUpdatePatientCommand(Patient patient);
         CommandDefinition GetRemovePatientCommand(Patient patient);
         CommandDefinition GetCreatePatientContactCommand();
-        CommandDefinition GetAddPatientContact(PatientContact patientContact);
-        CommandDefinition GetAddPatientContactRange(IEnumerable<PatientContact> patientContacts);
-        CommandDefinition GetFindPatientContact(Guid patientId);
-        CommandDefinition GetUpdatePatientContact(PatientContact patientContact);
-        CommandDefinition GetRemovePatientContact(PatientContact patientContact);
+        CommandDefinition GetAddPatientContactCommand(PatientContact patientContact);
+        CommandDefinition GetAddPatientContactRangeCommand(IEnumerable<PatientContact> patientContacts);
+        CommandDefinition GetFindPatientContactCommand(Guid patientId);
+        CommandDefinition GetUpdatePatientContactCommand(PatientContact patientContact);
+        CommandDefinition GetRemovePatientContactCommand(PatientContact patientContact);
     }
 }

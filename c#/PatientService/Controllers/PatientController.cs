@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-
+using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -17,6 +17,7 @@ namespace PatientService.Controllers
     {
 		private readonly ILogger<PatientController> _logger;
 		private readonly IPatientDbService _patientDbService;
+		private readonly IHttpClientFactory _httpClientFactory;
 
 		private ObjectResult ReturnProblem(string detail, int status)
 		{
@@ -26,11 +27,13 @@ namespace PatientService.Controllers
 
         public PatientController(
 			ILogger<PatientController> logger,
-			IPatientDbService patientDbService)
+			IPatientDbService patientDbService,
+			IHttpClientFactory httpClientFactory)
         {
             _logger = logger;
 			_patientDbService = patientDbService;
-		}
+			_httpClientFactory = httpClientFactory;
+        }
 
         // TODO: Delete patient contact if patient is deleted
 

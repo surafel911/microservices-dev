@@ -36,6 +36,10 @@ namespace PatientService.Models
 		// Concurrency Check
 		[Timestamp]
 		public byte[] RowVersion { get; set; }
+		
+		
+		// Navagation Property
+		public PatientContact PatientContact { get; set; }
 
 		public override string ToString()
 		{

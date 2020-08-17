@@ -15,7 +15,7 @@ namespace PatientService
 	{
 		public IConfiguration Configuration { get; }
 
-		private void SetupDapperOrm(ref IServiceCollection services)
+		private void SetupDapperORM(IServiceCollection services)
 		{
 			IDictionary<DbConnectionName, string> connectionDictionary = new Dictionary<DbConnectionName, string>
 			{
@@ -34,7 +34,7 @@ namespace PatientService
 			services.AddHealthChecks().AddNpgSql(Configuration.GetConnectionString("PatientDbContext"));
 		}
 
-		private void SetupEfCoreOrm(ref IServiceCollection services)
+		private void SetupEfCoreORM(IServiceCollection services)
 		{
 			services.AddDbContext<PatientDbContext>(options =>
 				options.UseNpgsql(Configuration.GetConnectionString("PatientDbContext")));
@@ -55,10 +55,10 @@ namespace PatientService
 
 			switch (Configuration.GetValue<int>("PATIENTSERVICE_ORM")) {
 			case 2:
-				SetupDapperOrm(ref services);
+				SetupDapperORM(services);
 				break;
 			default:
-				SetupEfCoreOrm(ref services);
+				SetupEfCoreORM(services);
 				break;
 			}
 

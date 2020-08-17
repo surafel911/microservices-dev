@@ -45,6 +45,9 @@ namespace PatientService.Services
 		{
 			try {
 				_defaultDbService.CreateServiceDb(_dbConnection.Database);
+				_dbConnection.Execute(_patientDbCommandService.GetUUIDModuleCommand());
+				_dbConnection.Execute(_patientDbCommandService.GetCreatePatientCommand());
+				_dbConnection.Execute(_patientDbCommandService.GetCreatePatientContactCommand());
 			}  catch (Exception e) {
 				_logger.LogError(e, "An error occured in the database service.");
 				throw;
@@ -73,22 +76,42 @@ namespace PatientService.Services
 
 		public void AddPatient(Patient patient)
 		{
-			throw new NotImplementedException();
+			try {
+				_dbConnection.Execute(_patientDbCommandService.GetAddPatientCommand(patient));
+			}  catch (Exception e) {
+				_logger.LogError(e, "An error occured in the database service.");
+				throw;
+			}
 		}
 
 		public void AddPatientRange(IEnumerable<Patient> patients)
 		{
-			throw new NotImplementedException();
+			try {
+				_dbConnection.Execute(_patientDbCommandService.GetAddPatientRangeCommand(patients));
+			}  catch (Exception e) {
+				_logger.LogError(e, "An error occured in the database service.");
+				throw;
+			}
 		}
 
 		public Patient FindPatient(Guid id)
 		{
-			throw new NotImplementedException();
+			try {
+				return _dbConnection.QueryFirst<Patient>(_patientDbCommandService.GetFindPatientCommand(id));
+			}  catch (Exception e) {
+				_logger.LogError(e, "An error occured in the database service.");
+				throw;
+			}
 		}
 
 		public Patient FindPatient(string firstName, string lastName, DateTime dateOfBirth)
 		{
-			throw new NotImplementedException();
+			try {
+				return _dbConnection.QueryFirst<Patient>(_patientDbCommandService.GetFindPatientCommand(firstName, lastName, dateOfBirth));
+			}  catch (Exception e) {
+				_logger.LogError(e, "An error occured in the database service.");
+				throw;
+			}
 		}
 
 		public void UpdatePatient(Patient patient)

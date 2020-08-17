@@ -16,6 +16,10 @@ namespace PatientService.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Patient>()
+                .HasOne(patient => patient.PatientContact)
+                .WithOne(patientContact => patientContact.Patient)
+                .HasForeignKey<PatientContact>(patientContact => patientContact.PatientId);
         }
     }
 }
