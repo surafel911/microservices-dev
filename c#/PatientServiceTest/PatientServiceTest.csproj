@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PatientService\PatientService.csproj" />
+    <ProjectReference Include="..\DataAtThePointOfCare\DataAtThePointOfCare.csproj" />
   </ItemGroup>
 
 </Project>

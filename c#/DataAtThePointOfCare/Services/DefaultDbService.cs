@@ -4,9 +4,9 @@ using System.Text;
 using Dapper;
 using Microsoft.Extensions.Logging;
 
-using PatientService.Models;
+using DataAtThePointOfCare.Models;
 
-namespace PatientService.Services
+namespace DataAtThePointOfCare.Services
 {
     public class DefaultDbService : IDefaultDbService
     {

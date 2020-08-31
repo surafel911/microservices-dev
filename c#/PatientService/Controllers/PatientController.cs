@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-
+using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 using PatientService.Models;
 using PatientService.Services;
+using DataAtThePointOfCare.Models;
 
 namespace PatientService.Controllers
 {
@@ -30,7 +31,7 @@ namespace PatientService.Controllers
         {
             _logger = logger;
 			_patientDbService = patientDbService;
-		}
+        }
 
         // TODO: Delete patient contact if patient is deleted
 

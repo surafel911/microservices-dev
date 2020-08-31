@@ -1,4 +1,4 @@
-namespace PatientService.Services
+namespace DataAtThePointOfCare.Services
 {
     public interface IDefaultDbService
     {

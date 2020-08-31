@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 
 using PatientService.Data;
 using PatientService.Models;
+using DataAtThePointOfCare.Models;
 
 using Npgsql;
 

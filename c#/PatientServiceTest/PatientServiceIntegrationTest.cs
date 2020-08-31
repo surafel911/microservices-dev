@@ -17,6 +17,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 using PatientService.Models;
 using PatientService.Services;
 using PatientService.Controllers;
+using DataAtThePointOfCare.Models;
+using DataAtThePointOfCare.Services;
 
 using PatientService;
 using PatientServiceTest.Models;
@@ -34,8 +36,6 @@ namespace PatientServiceTest
 			_httpClient = factory.CreateClient();
 		}
 
-		// TODO: Start writing integration testing.
-		
 		[Fact]
 		public async Task TestGetPatientFromId()
 		{
@@ -549,4 +549,6 @@ namespace PatientServiceTest
 			Assert.Equal(StatusCodes.Status400BadRequest, (int)httpResponseMessage.StatusCode);
 		}
 	}
+	
+	// TODO: Finish integration tests for PatientService
 }

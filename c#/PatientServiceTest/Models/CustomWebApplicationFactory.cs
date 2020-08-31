@@ -10,12 +10,23 @@ using Microsoft.EntityFrameworkCore;
 
 using PatientService.Data;
 using PatientService.Services;
+using DataAtThePointOfCare.Models;
+using DataAtThePointOfCare.Services;
 
 namespace PatientServiceTest.Models
 {
+    /*
+     * TODO: Determine whether a custom WebAppFactory is required to test Postgresql DBMS calls
+     * 		If so...
+     * 		TODO: Modify customer WebAppFactory to use Postgresql DBMS when Dapper is selected.
+     *      TODO: Otherwise, continue using the in memory db.
+     *
+     * TODO: Get integration testing w/ Dapper ORM working.
+     */
     public class CustomWebApplicationFactory<TStartup>
         : WebApplicationFactory<TStartup> where TStartup: class
     {
+        private void 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureServices(services => {
@@ -33,7 +44,7 @@ namespace PatientServiceTest.Models
 
                 IConfiguration configuration =  serviceProvider.GetRequiredService<IConfiguration>();
 
-                switch (ConfigurationBinder.GetValue<int>(configuration, "PATIENTSERVICE_ORM")) {
+                switch (configuration.GetValue<int>("PATIENTSERVICE_ORM")) {
                     case 2:
                         services.AddScoped<IPatientDbService, PatientDapperDbService>();
                         break;

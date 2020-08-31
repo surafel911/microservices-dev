@@ -1,8 +1,8 @@
 using System.Data;
 
-using PatientService.Models;
+using DataAtThePointOfCare.Models;
 
-namespace PatientService.Services
+namespace DataAtThePointOfCare.Services
 {
     public interface IDbConnectionFactory
     {

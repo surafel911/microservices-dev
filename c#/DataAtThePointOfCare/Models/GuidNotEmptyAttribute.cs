@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace PatientService.Models
+namespace DataAtThePointOfCare.Models
 {
 	[AttributeUsage(
 		AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter,

@@ -11,6 +11,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 using PatientService.Models;
 using PatientService.Services;
 using PatientService.Controllers;
+using DataAtThePointOfCare.Models;
+using DataAtThePointOfCare.Services;
 
 using PatientServiceTest.Models;
 
@@ -48,7 +50,7 @@ namespace PatientServiceTest
 
 			_patientController = new PatientController(
 				new NullLogger<PatientController>(),
-				(IPatientDbService)_mockPatientDbService
+				_mockPatientDbService
 			);
 
 			_patientController.ProblemDetailsFactory = new MockProblemDetailsFactory();

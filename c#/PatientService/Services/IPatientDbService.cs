@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 
 using PatientService.Models;
+using DataAtThePointOfCare.Models;
 
 namespace PatientService.Services
 {

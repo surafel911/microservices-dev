@@ -1,6 +1,9 @@
 using System;
+
 using PatientService.Models;
 using PatientService.Services;
+using DataAtThePointOfCare.Models;
+using DataAtThePointOfCare.Services;
 
 namespace PatientServiceTest.Models
 {

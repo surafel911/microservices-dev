@@ -1,4 +1,4 @@
-namespace PatientService.Models
+namespace DataAtThePointOfCare.Models
 {
     public enum DbConnectionName
     {

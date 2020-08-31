@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Dapper;
 
 using PatientService.Models;
+using DataAtThePointOfCare.Models;
 
 namespace PatientService.Services
 {
@@ -13,12 +14,24 @@ namespace PatientService.Services
         public PatientDbCommandService()
         {
         }
+
+        public CommandDefinition GetUUIDModuleCommand() =>
+            new CommandDefinition("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";");
         
         public CommandDefinition GetCanConnectCommand() =>
             new CommandDefinition(@"SELECT 1;");
 
-        public CommandDefinition GetCreatePatientCommand() =>
-            new CommandDefinition(@"CREATE TABLE Patients (Id uuid, FirstName varchar(40), LastName varchar(40), LastFourOfSSN varchar(4), DateOfBirth timestamp, RowVersion bytea);");
+        public CommandDefinition GetCreatePatientCommand()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            stringBuilder.Append(@"CREATE TABLE Patients (Id uuid PRIMARY KEY DEFAULT uuid_generate_v4(), ");
+            stringBuilder.Append(@"FirstName varchar(40) NOT NULL, LastName varchar(40) NOT NULL, ");
+            stringBuilder.Append(@"LastFourOfSSN varchar(4) NOT NULL, DateOfBirth timestamp NOT NULL, RowVersion bytea);");
+            
+            return new CommandDefinition(stringBuilder.ToString());
+        }
+            
         
         public CommandDefinition GetAnyPatientCommand() =>
             new CommandDefinition(@"SELECT 1 FROM Patients;");
@@ -108,10 +121,18 @@ namespace PatientService.Services
             return new CommandDefinition(stringBuilder.ToString());
         }
 
-        public CommandDefinition GetCreatePatientContactCommand() =>
-            new CommandDefinition(@"CREATE TABLE PatientContacts (PatientId uuid, PhoneNumber varchar(16), EmailAddress varchar(40), RowVersion bytea);");
+        public CommandDefinition GetCreatePatientContactCommand()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
 
-        public CommandDefinition GetAddPatientContact(PatientContact patientContact)
+            stringBuilder.Append(@"CREATE TABLE PatientContacts (PatientId uuid PRIMARY KEY DEFAULT uuid_generate_v4(),");
+            stringBuilder.Append(@"PhoneNumber varchar(16) NOT NULL, EmailAddress varchar(40), RowVersion bytea);");
+            
+            return new CommandDefinition(stringBuilder.ToString());
+        }
+            
+
+        public CommandDefinition GetAddPatientContactCommand(PatientContact patientContact)
         {
             StringBuilder stringBuilder = new StringBuilder();
 
@@ -122,7 +143,7 @@ namespace PatientService.Services
             return new CommandDefinition(stringBuilder.ToString());
         }
 
-        public CommandDefinition GetAddPatientContactRange(IEnumerable<PatientContact> patientContacts)
+        public CommandDefinition GetAddPatientContactRangeCommand(IEnumerable<PatientContact> patientContacts)
         {
             StringBuilder stringBuilder = new StringBuilder();
 
@@ -137,7 +158,7 @@ namespace PatientService.Services
             return new CommandDefinition(stringBuilder.ToString());
         }
 
-        public CommandDefinition GetFindPatientContact(Guid patientId)
+        public CommandDefinition GetFindPatientContactCommand(Guid patientId)
         {
             StringBuilder stringBuilder = new StringBuilder();
 
@@ -148,7 +169,7 @@ namespace PatientService.Services
             return new CommandDefinition(stringBuilder.ToString());
         }
 
-        public CommandDefinition GetUpdatePatientContact(PatientContact patientContact)
+        public CommandDefinition GetUpdatePatientContactCommand(PatientContact patientContact)
         {
             StringBuilder stringBuilder = new StringBuilder();
 
@@ -166,7 +187,7 @@ namespace PatientService.Services
             return new CommandDefinition(stringBuilder.ToString());
         }
 
-        public CommandDefinition GetRemovePatientContact(PatientContact patientContact)
+        public CommandDefinition GetRemovePatientContactCommand(PatientContact patientContact)
         {
             StringBuilder stringBuilder = new StringBuilder();
 

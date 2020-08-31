@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 using Npgsql;
 
-using PatientService.Models;
+using DataAtThePointOfCare.Models;
 
-namespace PatientService.Services
+namespace DataAtThePointOfCare.Services
 {
     public class DapperDbConnectionFactory : IDbConnectionFactory
     {
@@ -19,8 +19,7 @@ namespace PatientService.Services
         
         public IDbConnection CreateDbConnection(DbConnectionName connectionName)
         {
-            if (_connectionDictionary.TryGetValue(connectionName, out string connectionString))
-            {
+            if (_connectionDictionary.TryGetValue(connectionName, out string connectionString)) {
                 return new NpgsqlConnection(connectionString);
             }
 

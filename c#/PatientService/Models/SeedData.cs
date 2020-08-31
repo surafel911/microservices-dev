@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using PatientService.Data;
 using PatientService.Services;
+using DataAtThePointOfCare.Models;
 
 namespace PatientService.Models
 {

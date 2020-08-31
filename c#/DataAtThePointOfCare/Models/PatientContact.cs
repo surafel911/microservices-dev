@@ -2,11 +2,16 @@ using System;
 using System.Text;
 using System.ComponentModel.DataAnnotations;
 
-namespace PatientService.Models
+namespace DataAtThePointOfCare.Models
 {
+    // TODO: Research how to not have an extra copy of Patient be present when using EF Core ORM
     public class PatientContact
     {
         [Key]
+        [Required]
+        [GuidNotEmpty]
+        public Guid Id { get; set; }
+        
         [Required]
 		[GuidNotEmpty]
         public Guid PatientId { get; set; }
