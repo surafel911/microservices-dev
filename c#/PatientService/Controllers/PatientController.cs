@@ -33,8 +33,6 @@ namespace PatientService.Controllers
 			_patientDbService = patientDbService;
         }
 
-        // TODO: Delete patient contact if patient is deleted
-
 		/// <summary>
 		/// Finds a patient by Id.
 		/// </summary>
@@ -136,6 +134,8 @@ namespace PatientService.Controllers
 			if (patient == null) {
 				return ReturnProblem("Patient not found.", StatusCodes.Status404NotFound);
 			}
+
+			DeletePatientContact(id);
 
 			_patientDbService.RemovePatient(patient);
 
