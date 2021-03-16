@@ -26,7 +26,6 @@ namespace PatientServiceTest.Models
     public class CustomWebApplicationFactory<TStartup>
         : WebApplicationFactory<TStartup> where TStartup: class
     {
-        private void 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureServices(services => {
